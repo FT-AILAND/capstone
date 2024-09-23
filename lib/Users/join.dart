@@ -111,7 +111,7 @@ class JoinPageState extends State<JoinPage> {
                                   ]),
                             ),
                         
-                            SizedBox(height: mediaHeight(context, 0.1)),
+                            const SizedBox(height: 50),
                         
                             // 이메일 주소
                             CustomTextField(
@@ -281,63 +281,66 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // [텍스트] 라벨
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                fontSize: 15,
-              ),
-            ),
-          ],
-        ),
-        // [텍스트필드] 입력 필드
-        Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 20),
-          child: SizedBox(
-            child: TextFormField(
-              autovalidateMode: autovalidateMode,
-              obscureText: obscureText,
-              onChanged: onChanged,
-              onSaved: onSaved,
-              validator: validator,
-              decoration: InputDecoration(
-                isDense: true,
-                border: InputBorder.none,
-                enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(width: 3, color: Colors.white),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(width: 3, color: aitGreen),
-                ),
-                errorBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(width: 3, color: Colors.white),
-                ),
-                focusedErrorBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(width: 3, color: aitGreen),
-                ),
-                errorStyle: TextStyle(
-                  color: aitGreen,
+    return Padding(
+      padding: const EdgeInsets.only(top:10, bottom:10),
+      child: Column(
+        children: [
+          // [텍스트] 라벨
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
                   fontSize: 15,
-                  height: 2,
                 ),
-                contentPadding: const EdgeInsets.only(left: 5, bottom: 10, right: 5),
               ),
-              style: const TextStyle(
-                decorationThickness: 0,
-                color: Colors.white,
-                fontSize: 20, 
+            ],
+          ),
+          // [텍스트필드] 입력 필드
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 20),
+            child: SizedBox(
+              child: TextFormField(
+                autovalidateMode: autovalidateMode,
+                obscureText: obscureText,
+                onChanged: onChanged,
+                onSaved: onSaved,
+                validator: validator,
+                decoration: InputDecoration(
+                  isDense: true,
+                  border: InputBorder.none,
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(width: 3, color: Colors.white),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(width: 3, color: aitGreen),
+                  ),
+                  errorBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(width: 3, color: Colors.white),
+                  ),
+                  focusedErrorBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(width: 3, color: aitGreen),
+                  ),
+                  errorStyle: TextStyle(
+                    color: aitGreen,
+                    fontSize: 15,
+                    height: 2,
+                  ),
+                  contentPadding: const EdgeInsets.only(bottom: 10),
+                ),
+                style: const TextStyle(
+                  decorationThickness: 0,
+                  color: Colors.white,
+                  fontSize: 20, 
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

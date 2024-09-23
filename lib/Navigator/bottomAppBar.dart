@@ -1,10 +1,10 @@
+import 'package:ait_project/main.dart';
 import 'package:flutter/material.dart';
 
 // 페이지
 import '/Pages/goal.dart';
 import '/Pages/more.dart';
 import '/Pages/record.dart';
-import '/Pages/routine.dart';
 import '/Pages/work.dart';
 
 double iconSize = 35;
@@ -19,7 +19,7 @@ class BulidBottomAppBar extends StatefulWidget {
 
 class _BulidBottomAppBarState extends State<BulidBottomAppBar>
     with TickerProviderStateMixin {
-  late TabController _controller = TabController(length: 5, vsync: this);
+  late TabController _controller = TabController(length: 4, vsync: this);
 
   var index = 0;
   changeIndex(index) {
@@ -50,58 +50,72 @@ class _BulidBottomAppBarState extends State<BulidBottomAppBar>
         body: TabBarView(
           children: [
             workPage(),
-            routinePage(),
-            goalPage(),
             recordPage(),
+            goalPage(),
             MorePage()
           ],
           controller: _controller,
         ),
-        bottomNavigationBar: DefaultTabController(
-          length: 5,
-          child: TabBar(
-            controller: _controller,
-            indicatorWeight: 4,
-            indicatorSize: TabBarIndicatorSize.label,
-            indicatorColor: Color(0XFF4EFE8A),
-            unselectedLabelColor: Colors.grey,
-            labelColor: Colors.white,
-            unselectedLabelStyle: TextStyle(
-                color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
-            labelStyle: TextStyle(
-                color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
-            tabs: [
-              Tab(
-                  icon: Icon(
-                    Icons.fitness_center,
-                    size: iconSize,
+        bottomNavigationBar: SafeArea(
+          child: Container(
+            decoration: BoxDecoration(
+              color: aitNavy, 
+              // border: Border(
+              //   top: BorderSide(
+              //       color: aitGrey.withOpacity(0.2),
+              //       width: 3.0,
+              //   ),
+              // ),
+            ),
+            child: DefaultTabController(
+              length: 4,
+              child: TabBar(
+                dividerColor: Colors.transparent,
+                controller: _controller,
+                indicator: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: aitGreen,
+                      width: 4.0,
+                    ),
                   ),
-                  text: "운동"),
-              Tab(
-                  icon: Icon(
-                    Icons.recycling,
-                    size: iconSize,
-                  ),
-                  text: "루틴"),
-              Tab(
-                  icon: Icon(
-                    Icons.edit_document,
-                    size: iconSize,
-                  ),
-                  text: "목표"),
-              Tab(
-                  icon: Icon(
-                    Icons.equalizer,
-                    size: iconSize,
-                  ),
-                  text: "기록"),
-              Tab(
-                  icon: Icon(
-                    Icons.more_horiz,
-                    size: iconSize,
-                  ),
-                  text: "더보기"),
-            ],
+                ),
+                indicatorSize: TabBarIndicatorSize.label,
+                unselectedLabelColor: Colors.grey,
+                labelColor: Colors.white,
+                unselectedLabelStyle: const TextStyle(
+                    color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+                labelStyle: const TextStyle(
+                    color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
+              
+                tabs: [
+                  Tab(
+                      icon: Icon(
+                        Icons.fitness_center,
+                        size: iconSize,
+                      ),
+                      text: "운동"),
+                  Tab(
+                      icon: Icon(
+                        Icons.equalizer,
+                        size: iconSize,
+                      ),
+                      text: "기록"),
+                  Tab(
+                      icon: Icon(
+                        Icons.edit_document,
+                        size: iconSize,
+                      ),
+                      text: "목표"),
+                  Tab(
+                      icon: Icon(
+                        Icons.more_horiz,
+                        size: iconSize,
+                      ),
+                      text: "더보기"),
+                ],
+              ),
+            ),
           ),
         ),
       ),
