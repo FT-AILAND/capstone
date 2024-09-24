@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ait_project/main.dart';
 
 class EditPassword extends StatefulWidget {
@@ -17,7 +16,6 @@ class _EditPasswordState extends State<EditPassword> {
 
   String? _currentPassword;
   String? _newPassword;
-  String? _confirmPassword;
   bool _isFormValid = false;
 
   late TextEditingController _currentPasswordController;
@@ -120,10 +118,8 @@ class _EditPasswordState extends State<EditPassword> {
                   obscureText: true,
                   autovalidateMode: _autovalidateMode,
                   onChanged: (value) {
-                    _confirmPassword = value;
                   },
                   onSaved: (value) {
-                    _confirmPassword = value;
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {

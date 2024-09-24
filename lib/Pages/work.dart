@@ -1,153 +1,85 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 
-class WorkData {
-  final int workId;
-  final String name;
-  final String effect;
-  final String tag1;
-  final String? tag2;
-  final String? tag3;
-  final String? imgsrc;
-
-  WorkData({
-    required this.workId,
-    required this.name,
-    required this.effect,
-    required this.tag1,
-    this.tag2,
-    this.tag3,
-    this.imgsrc,
-  });
-
-  factory WorkData.fromJson(Map<String, dynamic> json) {
-    return WorkData(
-      workId: json['workId'],
-      name: json['name'],
-      effect: json['effect'],
-      tag1: json['tag1'],
-      tag2: json['tag2'],
-      tag3: json['tag3'],
-      imgsrc: json['imgsrc'],
-    );
-  }
-}
-
-// Future<List<WorkData>> loadworkdata() async {
-//   var dio = Dio();
-//   final response = await dio.get('http://192.168.56.1:3000/work/get');
-//   print(response.statusCode);
-//   if (response.statusCode == 200) {
-//     List<dynamic> data = response.data;
-
-//     print("ㅡㅡ");
-//     List<WorkData> list =
-//         data.map((dynamic e) => WorkData.fromJson(e)).toList();
-//     return list;
-//   } else {
-//     throw Exception('Failed to Load');
-//   }
-// }
-
-Future<List<WorkData>> loadworkdata() async {
-  try {
-    var dio = Dio();
-    final response = await dio.get('http://192.168.56.1:3000/work/get');
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      var responseData = response.data;
-      print('Data: $responseData');
-
-      if (responseData is Map<String, dynamic> &&
-          responseData.containsKey('data')) {
-        var dataList = responseData['data'];
-
-        if (dataList is List) {
-          List<WorkData> list =
-              dataList.map((dynamic e) => WorkData.fromJson(e)).toList();
-          return list;
-        } else {
-          throw Exception('Unexpected data format for key "data"');
-        }
-      } else {
-        throw Exception('Expected key "data" not found in response');
-      }
-    } else {
-      throw Exception('Failed to Load: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error in loadworkdata: $e');
-    throw Exception('Failed to Load');
-  }
-  // try {
-  //   var dio = Dio();
-  //   final response = await dio.get('http://192.168.56.1:3000/work/get');
-  //   print(response.statusCode);
-  //   if (response.statusCode == 200) {
-  //     List<dynamic> data = response.data;
-  //     print('Data: $data');
-  //     List<WorkData> list =
-  //         data.map((dynamic e) => WorkData.fromJson(e)).toList();
-  //     return list;
-  //   } else {
-  //     throw Exception('Failed to Load: ${response.statusCode}');
-  //   }
-  // } catch (e) {
-  //   print('Error in loadworkdata: $e');
-  //   throw Exception('Failed to Load');
-  // }
-}
-
-Future<List<WorkData>> getEntries() async {
-  List<WorkData> entries = await loadworkdata();
-  return entries;
-}
+import 'package:ait_project/data/muscle_list.dart';
+import 'package:ait_project/main.dart';
 
 class workPage extends StatefulWidget {
-  const workPage({super.key});
+  final Map<String, Map<String, dynamic>>? exerciseList;
+  const workPage({super.key, this.exerciseList});
 
   @override
   State<workPage> createState() => _workPageState();
 }
 
-class _workPageState extends State<workPage> {
-  late Future<List<WorkData>> worklist;
+class _workPageState extends State<workPage> with TickerProviderStateMixin{ 
+  // muscleList에 전체 운동 데이터 추가
+  List<Map<String, dynamic>> allExercises = [];
+
   @override
-  initState() {
+  void initState() {
     super.initState();
-    // MyApiService();
-    print("응애");
+    // 전체 리스트 만들기
+    allExercises.addAll(chestExerciseList.entries.map((entry) => {
+          'name': entry.key,
+          'image': entry.value['image'],
+          'nextPage': entry.value['nextPage'],
+          'shortDes': entry.value['shortDes'],
+          'hashTag': entry.value['hashTag'],
+        }));
+    allExercises.addAll(legsExerciseList.entries.map((entry) => {
+          'name': entry.key,
+          'image': entry.value['image'],
+          'nextPage': entry.value['nextPage'],
+          'shortDes': entry.value['shortDes'],
+          'hashTag': entry.value['hashTag'],
+        }));
+    allExercises.addAll(pullUpExerciseList.entries.map((entry) => {
+          'name': entry.key,
+          'image': entry.value['image'],
+          'nextPage': entry.value['nextPage'],
+          'shortDes': entry.value['shortDes'],
+          'hashTag': entry.value['hashTag'],
+        }));
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        scaffoldBackgroundColor: Color(0xFF3D3F5A),
+        scaffoldBackgroundColor: aitNavy,
       ),
       home: DefaultTabController(
-        length: 5,
+        length: 4,
         child: Scaffold(
             appBar: AppBar(
-              backgroundColor: Color(0xFF3D3F5A),
-              title: Center(
-                  child: const Text(
+              backgroundColor: aitNavy,
+              title: const Center(
+                  child: Text(
                 "운동",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  fontSize: 25, 
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
               )),
-              bottom: const TabBar(
-                tabs: [
-                  Tab(
-                    child: Text(
-                      "AI",
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                      ),
+              bottom: TabBar(               
+                dividerColor: Colors.transparent,
+                indicator: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: aitGreen,
+                      width: 4.0,
                     ),
                   ),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                unselectedLabelColor: Colors.grey,
+                labelColor: Colors.white,
+                unselectedLabelStyle: const TextStyle(
+                    color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+                labelStyle: const TextStyle(
+                    color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
+                tabs: const [
                   Tab(
                     child: Text(
                       "전체",
@@ -160,17 +92,7 @@ class _workPageState extends State<workPage> {
                   ),
                   Tab(
                     child: Text(
-                      "팔",
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Text(
-                      "복부",
+                      "상체",
                       style: TextStyle(
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w700,
@@ -188,340 +110,146 @@ class _workPageState extends State<workPage> {
                       ),
                     ),
                   ),
+                  Tab(
+                    child: Text(
+                      "등",
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
             body: TabBarView(
               children: [
-                // Use Builder widget to get a new BuildContext
-                //AI 부분
-                Builder(
-                  builder: (BuildContext context) {
-                    return SingleChildScrollView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          FutureBuilder<List<WorkData>>(
-                            future: getEntries(),
-                            builder: (context,
-                                AsyncSnapshot<List<WorkData>> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              } else {
-                                List<WorkData> entries = snapshot.data!;
-                                print(entries.length);
-                                print("ㅡㅡㅡㅡㅡㅡㅡㅡ");
-                                return Column(
-                                  children: [
-                                    SizedBox(
-                                      // Use Container to give it constraints
-                                      child: Container(
-                                        height:
-                                            MediaQuery.of(context).size.height -
-                                                kToolbarHeight,
-                                        child: ListView.builder(
-                                          padding: const EdgeInsets.all(8),
-                                          itemCount: entries.length,
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[400],
-                                                  border:
-                                                      Border.all(width: 1.5),
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Color(0x595B77),
-                                                      spreadRadius: 2,
-                                                      blurRadius: 7.0,
-                                                      offset: Offset(2,
-                                                          5), // changes position of shadow
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: SizedBox(
-                                                  width: 400,
-                                                  height: 110,
-                                                  child: Row(
-                                                    children: [
-                                                      Container(
-                                                        child: Image.asset(
-                                                          'assets/images/pushup.png',
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 30.0),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              entries[index]
-                                                                  .name,
-                                                              style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      top: 10.0,
-                                                                      bottom:
-                                                                          20.0),
-                                                              child: Text(
-                                                                entries[index]
-                                                                    .effect,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        13,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
-                                                                    color: Colors
-                                                                        .black),
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                                entries[index]
-                                                                    .tag1,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        13,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
-                                                                    color: Colors
-                                                                        .black))
-                                                          ],
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                //전체
-                Builder(
-                  builder: (BuildContext context) {
-                    return SingleChildScrollView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          FutureBuilder<List<WorkData>>(
-                            future: getEntries(),
-                            builder: (context,
-                                AsyncSnapshot<List<WorkData>> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              } else {
-                                List<WorkData> entries = snapshot.data!;
-                                print(entries.length);
-                                print("ㅡㅡㅡㅡㅡㅡㅡㅡ");
-                                return Column(
-                                  children: [
-                                    SizedBox(
-                                      // Use Container to give it constraints
-                                      child: Container(
-                                        height:
-                                            MediaQuery.of(context).size.height -
-                                                kToolbarHeight,
-                                        child: ListView.builder(
-                                          padding: const EdgeInsets.all(8),
-                                          itemCount: entries.length,
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[400],
-                                                  border:
-                                                      Border.all(width: 1.5),
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Color(0x595B77),
-                                                      spreadRadius: 2,
-                                                      blurRadius: 7.0,
-                                                      offset: Offset(2,
-                                                          5), // changes position of shadow
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: SizedBox(
-                                                  width: 400,
-                                                  height: 110,
-                                                  child: Row(
-                                                    children: [
-                                                      Container(
-                                                        child: Image.asset(
-                                                          'assets/images/pushup.png',
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 30.0),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              entries[index]
-                                                                  .name,
-                                                              style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      top: 10.0,
-                                                                      bottom:
-                                                                          20.0),
-                                                              child: Text(
-                                                                entries[index]
-                                                                    .effect,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        13,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
-                                                                    color: Colors
-                                                                        .black),
-                                                              ),
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                Text(
-                                                                    entries[index]
-                                                                        .tag1,
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            13,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w700,
-                                                                        color: Colors
-                                                                            .black)),
-                                                                if (entries[index]
-                                                                        .tag2 !=
-                                                                    null)
-                                                                  Text(
-                                                                    entries[index]
-                                                                        .tag2!,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          13,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w700,
-                                                                      color: Colors
-                                                                          .black,
-                                                                    ),
-                                                                  ),
-                                                                if (entries[index]
-                                                                        .tag3 !=
-                                                                    null)
-                                                                  Text(
-                                                                    entries[index]
-                                                                        .tag3!,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          13,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w700,
-                                                                      color: Colors
-                                                                          .black,
-                                                                    ),
-                                                                  ),
-                                                              ],
-                                                            )
-                                                          ],
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                Container(),
-                Container(),
-                Container()
+                _buildExerciseList(allExercises), // 전체 리스트
+                _buildExerciseList(chestExerciseList.entries.map((entry) => {
+                      'name': entry.key,
+                      'image': entry.value['image'],
+                      'nextPage': entry.value['nextPage'],
+                      'shortDes': entry.value['shortDes'],
+                      'hashTag': entry.value['hashTag'],
+                    }).toList()), // Chest 리스트
+                _buildExerciseList(legsExerciseList.entries.map((entry) => {
+                      'name': entry.key,
+                      'image': entry.value['image'],
+                      'nextPage': entry.value['nextPage'],
+                      'shortDes': entry.value['shortDes'],
+                      'hashTag': entry.value['hashTag'],
+                    }).toList()), // Legs 리스트
+                _buildExerciseList(pullUpExerciseList.entries.map((entry) => {
+                      'name': entry.key,
+                      'image': entry.value['image'],
+                      'nextPage': entry.value['nextPage'],
+                      'shortDes': entry.value['shortDes'],
+                      'hashTag': entry.value['hashTag'],
+                    }).toList()), // Back 리스트
               ],
             )),
       ),
     );
   }
+  
+  // 운동 리스트를 보여주는 위젯
+  Widget _buildExerciseList(List<Map<String, dynamic>> exerciseList) {
+    return ListView.builder(
+      itemCount: exerciseList.length,
+      itemBuilder: (context, index) {
+        final exercise = exerciseList[index];
+        
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => exercise['nextPage']),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20, left: 15, right: 15), // 컨테이너 외부 패딩
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF595B77).withOpacity(0.5),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(15), // 컨테이너 내부 패딩
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start, // 세로 정렬 방식
+                  children: [
+                    // 왼쪽 이미지
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.network(
+                          exercise['image'],
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 15), // 이미지와 텍스트 사이 간격
+
+                    // 중간 텍스트 부분
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            exercise['nextPage']?.korName ?? '운동 이름 없음',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3, bottom: 5),
+                            child: Text(
+                              exercise['shortDes'] ?? '',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            exercise['hashTag'] ?? '',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0XFF9FA2CE),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // 오른쪽 상단 AI 표시
+                    if (exercise['nextPage']?.isReadyForAI == true)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        child: Text(
+                          'AI',
+                          style: TextStyle(
+                            color: aitGreen,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }
