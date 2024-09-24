@@ -1,69 +1,43 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:ait_project/main.dart';
 
-class EditBody extends StatefulWidget {
-  const EditBody({super.key});
+class EditPassword extends StatefulWidget {
+  const EditPassword({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _EditBodyState createState() => _EditBodyState();
+  _EditPasswordState createState() => _EditPasswordState();
 }
 
-class _EditBodyState extends State<EditBody> {
+class _EditPasswordState extends State<EditPassword> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
 
-  String? _nickname;
-  String? _height;
-  String? _weight;
+  String? _currentPassword;
+  String? _newPassword;
+  String? _confirmPassword;
   bool _isFormValid = false;
 
-  late TextEditingController _nicknameController;
-  late TextEditingController _heightController;
-  late TextEditingController _weightController;
+  late TextEditingController _currentPasswordController;
+  late TextEditingController _newPasswordController;
+  late TextEditingController _confirmPasswordController;
 
   @override
   void initState() {
     super.initState();
-    // 컨트롤러 초기화
-    _nicknameController = TextEditingController();
-    _heightController = TextEditingController();
-    _weightController = TextEditingController();
-    _loadUserData();
+    _currentPasswordController = TextEditingController();
+    _newPasswordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
   }
 
   @override
   void dispose() {
-    // 컨트롤러 해제
-    _nicknameController.dispose();
-    _heightController.dispose();
-    _weightController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadUserData() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot doc = await _firestore.collection('Users').doc(user.uid).get();
-      setState(() {
-        _nickname = doc['nickname'];
-        _height = doc['height'].toString(); // double을 String으로 변환
-        _weight = doc['weight'].toString(); // double을 String으로 변환
-
-        // 컨트롤러에 값 설정
-        _nicknameController.text = _nickname ?? '';
-        _heightController.text = _height ?? '';
-        _weightController.text = _weight ?? '';
-      });
-    }
   }
 
   void _updateFormValidity() {
@@ -83,7 +57,7 @@ class _EditBodyState extends State<EditBody> {
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('신체 정보 수정', 
+        title: const Text('비밀번호 변경', 
           style: TextStyle(
             fontSize: 25, 
             color: Colors.white,
@@ -102,65 +76,68 @@ class _EditBodyState extends State<EditBody> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomTextField(
-                  label: '닉네임',
-                  controller: _nicknameController,
+                  label: '현재 비밀번호',
+                  controller: _currentPasswordController,
+                  obscureText: true,
                   autovalidateMode: _autovalidateMode,
                   onChanged: (value) {
-                    _nickname = value;
+                    _currentPassword = value;
                   },
                   onSaved: (value) {
-                    _nickname = value;
+                    _currentPassword = value;
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '닉네임을 입력해주세요.';
+                      return '현재 비밀번호를 입력해주세요.';
                     }
                     return null;
                   },
                 ),
                 CustomTextField(
-                  label: '신장 (cm)',
-                  controller: _heightController,
+                  label: '새 비밀번호',
+                  controller: _newPasswordController,
+                  obscureText: true,
                   autovalidateMode: _autovalidateMode,
                   onChanged: (value) {
-                    _height = value;
+                    _newPassword = value;
                   },
                   onSaved: (value) {
-                    _height = value;
+                    _newPassword = value;
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '신장을 입력해주세요.';
+                      return '새 비밀번호를 입력해주세요.';
+                    }
+                    if (value.length < 6) {
+                      return '비밀번호는 6자리 이상이어야 합니다.';
                     }
                     return null;
                   },
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
                 ),
                 CustomTextField(
-                  label: '체중 (kg)',
-                  controller: _weightController,
+                  label: '새 비밀번호 확인',
+                  controller: _confirmPasswordController,
+                  obscureText: true,
                   autovalidateMode: _autovalidateMode,
                   onChanged: (value) {
-                    _weight = value;
+                    _confirmPassword = value;
                   },
                   onSaved: (value) {
-                    _weight = value;
+                    _confirmPassword = value;
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '체중을 입력해주세요.';
+                      return '새 비밀번호 확인을 입력해주세요.';
+                    }
+                    if (value != _newPasswordController.text) {
+                      return '새 비밀번호와 일치하지 않습니다.';
                     }
                     return null;
                   },
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
                 ),
-                Spacer(),
+                const Spacer(),
                 SignUpButton(
-                  label: '수정하기',
+                  label: '비밀번호 변경',
                   onPressed: () async {
                     setState(() {
                       _autovalidateMode = AutovalidateMode.always;
@@ -171,21 +148,39 @@ class _EditBodyState extends State<EditBody> {
                       
                       User? user = _auth.currentUser;
                       if (user != null) {
-                        await _firestore.collection("Users").doc(user.uid).update({
-                          "nickname": _nickname,
-                          "height": _height,
-                          "weight": _weight,
-                        });
-                        
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('정보가 수정되었습니다.', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                            duration: Duration(seconds: 1),
-                            backgroundColor: Colors.white,
-                          ),
-                        );
-                        
-                        Navigator.pop(context);
+                        try {
+                          // 현재 비밀번호 확인
+                          AuthCredential credential = EmailAuthProvider.credential(
+                            email: user.email!, 
+                            password: _currentPassword!
+                          );
+                          await user.reauthenticateWithCredential(credential);
+                          
+                          // 새 비밀번호로 변경
+                          await user.updatePassword(_newPassword!);
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('비밀번호가 변경되었습니다.', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                              duration: Duration(seconds: 2),
+                              backgroundColor: Colors.white,
+                            ),
+                          );
+                          
+                          Navigator.pop(context);
+                        } on FirebaseAuthException catch (e) {
+                          String errorMessage = '비밀번호 변경에 실패했습니다.';
+                          if (e.code == 'wrong-password') {
+                            errorMessage = '현재 비밀번호가 올바르지 않습니다.';
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(errorMessage, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       }
                     }
                   },
@@ -202,32 +197,28 @@ class _EditBodyState extends State<EditBody> {
 
 class CustomTextField extends StatelessWidget {
   final String label;
-  final String? initialValue;
   final bool obscureText;
   final void Function(String) onChanged;
   final void Function(String?) onSaved;
   final String? Function(String?) validator;
-  final List<TextInputFormatter>? inputFormatters;
   final AutovalidateMode autovalidateMode;
-  final TextEditingController? controller;
+  final TextEditingController controller;
 
   const CustomTextField({
     Key? key,
     required this.label,
-    this.initialValue,
     this.obscureText = false,
     required this.onChanged,
     required this.onSaved,
     required this.validator,
-    this.inputFormatters,
     this.autovalidateMode = AutovalidateMode.disabled,
-    this.controller,
+    required this.controller,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top:10, bottom:10),
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
       child: Column(
         children: [
           Row(
@@ -248,13 +239,11 @@ class CustomTextField extends StatelessWidget {
             child: SizedBox(
               child: TextFormField(
                 controller: controller,
-                initialValue: controller == null ? initialValue : null, // 컨트롤러가 없을 때만 initialValue 사
                 autovalidateMode: autovalidateMode,
                 obscureText: obscureText,
                 onChanged: onChanged,
                 onSaved: onSaved,
                 validator: validator,
-                inputFormatters: inputFormatters,
                 decoration: InputDecoration(
                   isDense: true,
                   border: InputBorder.none,

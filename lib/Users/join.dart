@@ -111,7 +111,7 @@ class JoinPageState extends State<JoinPage> {
                                   ]),
                             ),
                         
-                            const SizedBox(height: 50),
+                            const SizedBox(height: 30),
                         
                             // 이메일 주소
                             CustomTextField(
@@ -195,45 +195,44 @@ class JoinPageState extends State<JoinPage> {
                     InputNextButton(
                       label: '추가정보 입력',
                       onPressed: () async {
-
                         setState(() {
                           // 제출 버튼을 누르면 autovalidateMode를 always로 변경
                           _autovalidateMode = AutovalidateMode.always;
                         });
-                        
+
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          
+
+                          // 에러 발생 여부 체크용 변수
+                          bool isError = false;
+
                           UserData userData = UserData(
                             email: email,
                             password: password,
                           );
 
-                          // 에러 발생 여부 체크용 변수
-                          bool isError = false; 
-
-                          // 최종적으로 UserData를 처리 (서버로 전송)
                           try {
-                            // Firebase Authentication (회원가입 처리)
-                            // ignore: unused_local_variable
-                            UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                              email: userData.email,
-                              password: userData.password,
+                            // 존재 여부를 확인하기 위해 임의의 잘못된 패스워드를 사용하여 로그인 시도
+                            await FirebaseAuth.instance.signInWithEmailAndPassword(
+                              email: email,
+                              password: 'dummyPasswordThatWillFail',
                             );
-
                           } on FirebaseAuthException catch (e) {
-                            // FirebaseAuthException을 통해 발생할 수 있는 예외 처리
-                            if (e.code == 'weak-password') {
-                              flutterToast('패스워드 보안이 취약합니다.');
-                              isError = true;
-                            } else if (e.code == 'email-already-in-use') {
+                            if (e.code == 'user-not-found') {
+                              // 이메일이 존재하지 않음
+                              // isError = false;
+                            } else if (e.code == 'wrong-password') {
+                              // 이메일이 존재하지만 잘못된 패스워드
                               flutterToast('이미 가입된 이메일 계정입니다.');
                               isError = true;
+                            } else {
+                              // 그 외 다른 에러 처리
+                              flutterToast('오류가 발생했습니다: ${e.message}');
+                              print('${e.message}');
+                              isError = true;
                             }
-                          } catch (e) {
-                            print(e);
                           }
-                          
+
                           // 에러가 없을 때만 페이지 이동
                           if (!isError) {
                             Navigator.push(

@@ -22,13 +22,17 @@ Color aitGreen = const Color(0xFF4EFE8A); // 초록 (하이라이트)
 Color aitGrey = const Color(0xFFD9D9D9); // 회색
 Color aitNavy = const Color(0xFF3D3F5A); // 네이비 (배경)
 
-void main() async {
+// 파이어베이스 초기화 함수
+Future<void> initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   // firebase_options import 후 options 지정을 해줘야 init이 정상적으로 진행됨
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+}
 
+void main() async {
+  await initializeApp();
   runApp(const MyApp());
 }
 
