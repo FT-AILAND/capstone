@@ -1,7 +1,7 @@
+import 'package:ait_project/Users/Edit/editPassword.dart';
 import 'package:flutter/material.dart';
 
 // 파이어베이스
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 // 페이지
@@ -54,7 +54,15 @@ class MorePage extends StatelessWidget {
                 ),
               );
             }),
-            _buildMenuItem('비밀번호 수정', onTap: () {}),
+            // 비밀번호 수정
+            _buildMenuItem('비밀번호 수정', onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditPassword(),
+                ),
+              );
+            }),
 
             const SizedBox(height: 30),
 
@@ -162,8 +170,10 @@ class MorePage extends StatelessWidget {
                       onPressed: () async {
                         try {
                           await FirebaseAuth.instance.signOut();
+                           // 앱 재초기화
+                          await initializeApp();
                           Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (context) => const MyHomePage()),
+                            MaterialPageRoute(builder: (context) => const MyApp()),
                             (Route<dynamic> route) => false,
                           );
                         } catch (e) {

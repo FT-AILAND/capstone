@@ -118,38 +118,38 @@ class LogInPageState extends State<LogInPage> {
                   
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-
-                    // 에러 발생 여부 체크용 변수
-                    bool isError = false; 
                     
                     try {
-                      // ignore: unused_local_variable
                       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
                         email: email,
                         password: password
                       );
-
+                      
+                      if (userCredential.user != null) {
+                        // 로그인 성공
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => BulidBottomAppBar(index: 0),
+                          ), (route) => false,
+                        );
+                      } else {
+                        // 사용자 정보가 null인 경우
+                        flutterToast("로그인에 실패했습니다. 다시 시도해주세요.");
+                      }
                     } on FirebaseAuthException catch (e) {
                       if (e.code == 'user-not-found') {
                         flutterToast("존재하지 않는 사용자입니다.");
-                        isError = true;
                       } else if (e.code == 'wrong-password') {
                         flutterToast('비밀번호가 틀렸습니다.');
-                        isError = true;
+                      } else {
+                        flutterToast('로그인 중 오류가 발생했습니다: ${e.message}');
                       }
-                    }                  
-
-                    // 에러가 없을 때 홈으로 이동
-                    if (!isError) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => BulidBottomAppBar(index: 0),
-                        ), (route) => false,
-                      );
-                    }              
-
+                    } catch (e) {
+                      flutterToast('알 수 없는 오류가 발생했습니다.');
+                    }
                   }
+                                
                 },
                 backgroundColor: _isFormValid ? aitGreen : aitGrey,
               ),

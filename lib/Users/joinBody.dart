@@ -172,40 +172,54 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                     widget.userData.height = height;
                     widget.userData.weight = weight;
 
-                    // FirebaseFirestore에 회원가입 상세정보 저장
-                    // Users 테이블(컬렉션)에 현재 사용자의 uid 문서(doc)로 저장
-                    var currentUser = FirebaseAuth.instance.currentUser;
-                    var uid = currentUser!.uid;
+                    try{
+                      // Firebase Authentication에 회원가입 처리
+                      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                        email: widget.userData.email,
+                        password: widget.userData.password,
+                      );
 
-                    FirebaseFirestore _firestore = FirebaseFirestore.instance;
-                    await _firestore.collection("Users").doc(uid).set({
-                      "uid" : currentUser.uid,
-                      "email": currentUser.email,
-                      "nickname": widget.userData.nickname,
-                      "height": widget.userData.height,
-                      "weight": widget.userData.weight,
-                    });
+                      var uid = userCredential.user!.uid;
 
-                    // (필요시) child 테이블? 만드는 방법
-                    // ex.현재 사용자의 uid를 사용하는 leaderboard_DB 테이블
-                    // FirebaseFirestore.instance.collection('leaderboard_DB').doc(uid).set({
-                    //   'push_up': 0,
-                    //   'squrt': 0,
-                    //   'pull_up': 0,
-                    //   'score': 0
-                    // });
+                      // FirebaseFirestore에 회원 정보 저장
+                      FirebaseFirestore _firestore = FirebaseFirestore.instance;
+                      await _firestore.collection("Users").doc(uid).set({
+                        "uid": uid,
+                        "email": widget.userData.email,
+                        "nickname": widget.userData.nickname,
+                        "height": widget.userData.height,
+                        "weight": widget.userData.weight,
+                      });
 
-                    // 로그아웃 할 때 다른데에서 쓰기
-                    // FirebaseAuth.instance.signOut();
-                    // Navigator.pop(context);
-
-                    // 홈으로 이동
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => BulidBottomAppBar(index: 0),
-                      ), (route) => false,
-                    );
+                      // (필요시) child 테이블? 만드는 방법
+                      // ex.현재 사용자의 uid를 사용하는 leaderboard_DB 테이블
+                      // FirebaseFirestore.instance.collection('leaderboard_DB').doc(uid).set({
+                      //   'push_up': 0,
+                      //   'squrt': 0,
+                      //   'pull_up': 0,
+                      //   'score': 0
+                      // });
+                      
+                      // 홈으로 이동
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => BulidBottomAppBar(index: 0),
+                        ), 
+                        (route) => false,
+                      );    
+                    }on FirebaseAuthException catch (e) {
+                      // FirebaseAuthException을 통해 발생할 수 있는 예외 처리
+                      if (e.code == 'weak-password') {
+                        flutterToast('패스워드 보안이 취약합니다.');
+                      } else if (e.code == 'email-already-in-use') {
+                        flutterToast('이미 가입된 이메일 계정입니다.');
+                      } else {
+                        flutterToast('오류가 발생했습니다: ${e.message}');
+                      }
+                    } catch (e) {
+                      print('오류: $e');
+                    }
 
                   }
                 },
