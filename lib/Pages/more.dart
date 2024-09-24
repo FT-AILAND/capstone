@@ -172,6 +172,7 @@ class MorePage extends StatelessWidget {
                           await FirebaseAuth.instance.signOut();
                            // 앱 재초기화
                           await initializeApp();
+                          // 홈으로 이동
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(builder: (context) => const MyApp()),
                             (Route<dynamic> route) => false,
