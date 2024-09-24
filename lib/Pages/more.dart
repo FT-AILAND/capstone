@@ -1,4 +1,3 @@
-import 'package:ait_project/Users/Edit/editPassword.dart';
 import 'package:flutter/material.dart';
 
 // 파이어베이스
@@ -7,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 // 페이지
 import '../main.dart';
 import 'package:ait_project/Users/Edit/editBody.dart';
+import 'package:ait_project/Users/Edit/deleteAccount.dart';
+import 'package:ait_project/Users/Edit/editPassword.dart';
 
 // 위젯
 class MorePage extends StatelessWidget {
@@ -79,7 +80,14 @@ class MorePage extends StatelessWidget {
             _buildMenuItem('알림설정', onTap: () {}),
             _buildMenuItem('도움말', onTap: () {}),
             _buildTextButton('로그아웃', onTap: () => _showLogoutDialog(context)),
-            _buildTextButton('회원탈퇴', onTap: () {}),
+            _buildTextButton('회원탈퇴', onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DeleteAccount(),
+                ),
+              );
+            }),
 
           ],
         ),
