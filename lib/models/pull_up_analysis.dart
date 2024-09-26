@@ -353,20 +353,21 @@ class PullUpAnalysis implements WorkoutAnalysis {
     int new_pullup = workoutResult.toJson()['pull_up'];
     print(uid_name);
 
-    CollectionReference leaderboard =
-        FirebaseFirestore.instance.collection('leaderboard_DB');
+    // 안 쓸거라 주석처리
+    // CollectionReference leaderboard =
+    //     FirebaseFirestore.instance.collection('leaderboard_DB');
 
-    var docSnapshot = await leaderboard.doc(uid_name).get();
-    Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
-    int old_pullup = data!['pull_up'];
-    int old_score = data['score'];
+    // var docSnapshot = await leaderboard.doc(uid_name).get();
+    // Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
+    // int old_pullup = data!['pull_up'];
+    // int old_score = data['score'];
 
-    if (new_pullup > old_pullup) {
-      int new_score = new_pullup - old_pullup + old_score;
-      leaderboard
-          .doc(uid_name)
-          .update({'pull_up': new_pullup, 'score': new_score});
-    }
+    // if (new_pullup > old_pullup) {
+    //   int new_score = new_pullup - old_pullup + old_score;
+    //   leaderboard
+    //       .doc(uid_name)
+    //       .update({'pull_up': new_pullup, 'score': new_score});
+    // }
 
     exercisestart();
     print("streamend");

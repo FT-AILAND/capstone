@@ -158,6 +158,8 @@ class _DeleteAccountState extends State<DeleteAccount> {
         });
       }
     }
+    else{
+    }
   }
 
   @override

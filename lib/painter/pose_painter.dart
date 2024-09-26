@@ -15,16 +15,19 @@ class PosePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // 초록: 33개의 관절 포인트(랜드마크) 색깔
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4.0
       ..color = Colors.green;
 
+    // 노랑: 왼쪽 선 색깔(왼팔~왼다리)
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..color = Colors.yellow;
 
+    // 초록: 오른쪽 선 색깔(오른팔~오른다리)
     final rightPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
@@ -35,7 +38,8 @@ class PosePainter extends CustomPainter {
       ..strokeWidth = 3.0
       ..color = Colors.black;
 
-    poses.forEach((pose) {
+    // 추출된 관절 포인트 갯수만큼 점 그리기
+    for (final pose in poses) {
       pose.landmarks.forEach((_, landmark) {
         canvas.drawCircle(
             Offset(
@@ -46,10 +50,11 @@ class PosePainter extends CustomPainter {
             paint);
       });
 
+      // 점1과 점2를 선으로 이어주는 함수(랜드마크 타입1, 랜드마크 타입2, 선 색깔 타입)
       void paintLine(
           PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
-        PoseLandmark joint1 = pose.landmarks[type1]!;
-        PoseLandmark joint2 = pose.landmarks[type2]!;
+        final PoseLandmark joint1 = pose.landmarks[type1]!;
+        final PoseLandmark joint2 = pose.landmarks[type2]!;
         canvas.drawLine(
             Offset(translateX(joint1.x, rotation, size, absoluteImageSize),
                 translateY(joint1.y, rotation, size, absoluteImageSize)),
@@ -77,13 +82,12 @@ class PosePainter extends CustomPainter {
       //Draw legs
       paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
       paintLine(
-          PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
-
-      paintLine(
           PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
       paintLine(
+          PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
+      paintLine(
           PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
-    });
+    }
   }
 
   @override

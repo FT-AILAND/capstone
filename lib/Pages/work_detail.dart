@@ -357,11 +357,9 @@ class _WorkDetailPageState extends State<WorkDetailPage> {
   void _startTraining() {
     print('$_repetition회 시작');
 
-    Get.to(
-      PoseDetectorView(
-        targetCount: _repetition,
-        workoutName: widget.workoutName,
-      ),
-    );
+    Get.to(() => PoseDetectorView(
+      targetCount: _repetition,
+      workoutName: widget.workoutName,
+    ));
   }
 }

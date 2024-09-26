@@ -315,20 +315,21 @@ class PushUpAnalysis implements WorkoutAnalysis {
     int new_pushup = workoutResult.toJson()['score'];
     print(uid_name);
 
-    CollectionReference leaderboard =
-        FirebaseFirestore.instance.collection('leaderboard_DB');
+    // 안 쓸거라 주석처리
+    // CollectionReference leaderboard =
+    //     FirebaseFirestore.instance.collection('leaderboard_DB');
 
-    var docSnapshot = await leaderboard.doc(uid_name).get();
-    Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
-    int old_pushup = data!['push_up'];
-    int old_score = data['score'];
+    // var docSnapshot = await leaderboard.doc(uid_name).get();
+    // Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
+    // int old_pushup = data!['push_up'];
+    // int old_score = data['score'];
 
-    if (new_pushup > old_pushup) {
-      int new_score = new_pushup - old_pushup + old_score;
-      leaderboard
-          .doc(uid_name)
-          .update({'push_up': new_pushup, 'score': new_score});
-    }
+    // if (new_pushup > old_pushup) {
+    //   int new_score = new_pushup - old_pushup + old_score;
+    //   leaderboard
+    //       .doc(uid_name)
+    //       .update({'push_up': new_pushup, 'score': new_score});
+    // }
 
     exercisestart();
 

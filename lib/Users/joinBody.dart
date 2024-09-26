@@ -182,14 +182,20 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                       var uid = userCredential.user!.uid;
 
                       // FirebaseFirestore에 회원 정보 저장
-                      FirebaseFirestore _firestore = FirebaseFirestore.instance;
-                      await _firestore.collection("Users").doc(uid).set({
+                      FirebaseFirestore firestore = FirebaseFirestore.instance;
+                      await firestore.collection("Users").doc(uid).set({
                         "uid": uid,
                         "email": widget.userData.email,
                         "nickname": widget.userData.nickname,
                         "height": widget.userData.height,
                         "weight": widget.userData.weight,
+                      }).then((_) {
+                        print("사용자 정보가 Firestore에 성공적으로 저장되었습니다.");
+                      }).catchError((error) {
+                        print("Firestore 저장 중 오류 발생: $error");
+                        throw error;  // 오류를 다시 던져서 catch 블록에서 처리하도록 합니다.
                       });
+
 
                       // (필요시) child 테이블? 만드는 방법
                       // ex.현재 사용자의 uid를 사용하는 leaderboard_DB 테이블
@@ -200,7 +206,7 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                       //   'score': 0
                       // });
                       
-                      // 홈으로 이동
+                      //홈으로 이동
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
@@ -220,6 +226,8 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                     } catch (e) {
                       print('오류: $e');
                     }
+
+
 
                   }
                 },
