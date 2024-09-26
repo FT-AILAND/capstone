@@ -337,20 +337,21 @@ class SquatAnalysis implements WorkoutAnalysis {
     int new_squat = workoutResult.toJson()['squat'];
     print(uid_name);
 
-    CollectionReference leaderboard =
-        FirebaseFirestore.instance.collection('leaderboard_DB');
+    // 안 쓸거라 주석처리startPreview
+    // CollectionReference leaderboard =
+    //     FirebaseFirestore.instance.collection('leaderboard_DB');
 
-    var docSnapshot = await leaderboard.doc(uid_name).get();
-    Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
-    int old_squat = data!['squat'];
-    int old_score = data['score'];
+    // var docSnapshot = await leaderboard.doc(uid_name).get();
+    // Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
+    // int old_squat = data!['squat'];
+    // int old_score = data['score'];
 
-    if (new_squat > old_squat) {
-      int new_score = new_squat - old_squat + old_score;
-      leaderboard
-          .doc(uid_name)
-          .update({'squat': new_squat, 'score': new_score});
-    }
+    // if (new_squat > old_squat) {
+    //   int new_score = new_squat - old_squat + old_score;
+    //   leaderboard
+    //       .doc(uid_name)
+    //       .update({'squat': new_squat, 'score': new_score});
+    // }
     print("streamend");
   }
 }
