@@ -1,20 +1,35 @@
 String pullUpDescription = '''
-  풀업의 가장 기본적인 자세입니다.
-  AI 자세분석으로 안좋은 자세가 있는지 알려드립니다.
+풀업의 가장 기본적인 자세입니다.
+AI 자세분석으로 안좋은 자세가 있는지 알려드립니다.
 
-  1. 팔이 충분히 수축하지 않음. 
-  2. 팔이 충분히 이완하지 않음.
-  3. 팔이 앞뒤로 과도하게 움직임.
-  4. 반동을 사용해서 운동.
-  5. 운동수행숙도가 너무 빠름
+1. 팔이 충분히 수축하지 않음. 
+
+2. 팔이 충분히 이완하지 않음.
+
+3. 팔이 앞뒤로 과도하게 움직임.
+
+4. 반동을 사용해서 운동.
+
+5. 운동수행숙도가 너무 빠름.
 ''';
 
-String pullUpImageUrl = 'https://image.freepik.com/free-photo/male-body-builder-doing-pull-ups-gym_13339-53191.jpg';
+String pullUpImageUrl = 'assets/pullUp.gif';
 
 String pullUpShort = '상체 후면 및 팔 근력 강화';
 
 String pullUpTag = '#기구 #등 #팔';
 
+String pullUpGuide = '''
+1. 손을 어깨 너비보다 약간 넓게 벌려서 바를 잡습니다.  
+
+2. 몸은 일직선을 유지하고 코어에 힘을 줍니다.  
+
+3. 턱이 바에 닿을 때까지 팔을 구부려 몸을 끌어올립니다.  
+
+4. 팔꿈치를 옆으로 벌리지 않고 몸 옆으로 유지합니다.  
+
+5. 천천히 팔을 펴면서 시작 자세로 돌아옵니다.
+''';
 
 
 

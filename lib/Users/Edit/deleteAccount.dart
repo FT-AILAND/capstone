@@ -139,9 +139,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
           ),
         );
         
-        // MyApp() 페이지로 이동
+        // 홈으로 이동
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const MyApp()),
+          MaterialPageRoute(builder: (context) => const Root()), // Root 페이지로 이동
           (Route<dynamic> route) => false,
         );
       } on FirebaseAuthException catch (e) {

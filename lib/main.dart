@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:flutter/services.dart';
+import 'package:camera/camera.dart';
 
 // 파이어베이스 패키지
 import 'package:ait_project/firebase_options.dart'; 
@@ -16,11 +19,13 @@ double mediaHeight(BuildContext context, double scale) =>
 double mediaWidth(BuildContext context, double scale) =>
     (MediaQuery.of(context).size.width) * scale;
 
-
 // 메인 컬러
 Color aitGreen = const Color(0xFF4EFE8A); // 초록 (하이라이트)
 Color aitGrey = const Color(0xFFD9D9D9); // 회색
 Color aitNavy = const Color(0xFF3D3F5A); // 네이비 (배경)
+
+// 카메라
+List<CameraDescription> cameras = [];
 
 // 파이어베이스 초기화 함수
 Future<void> initializeApp() async {
@@ -31,8 +36,13 @@ Future<void> initializeApp() async {
   );
 }
 
-void main() async {
+Future<void> main() async {
+  // 파이어베이스 초기화 함수
   await initializeApp();
+  
+  // 카메라
+  cameras = await availableCameras();
+
   runApp(const MyApp());
 }
 
@@ -41,7 +51,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]); // 세로고정
+    return GetMaterialApp(
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFF3D3F5A),
