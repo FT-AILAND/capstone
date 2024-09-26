@@ -29,8 +29,9 @@ Map<String, Map<String, dynamic>> chestExerciseList = {
       isReadyForAI: true,
       imageUrl: pushUpImageUrl,
       korName: '푸시업',
+      guide: pushUpGuide,
+      shortDes: pushUpShort,
     ),
-    'shortDes': pushUpShort,
     'hashTag': pushUpTag,
   },
   'Diamond Push Up': {
@@ -41,8 +42,9 @@ Map<String, Map<String, dynamic>> chestExerciseList = {
       isReadyForAI: false,
       imageUrl: diamondPushUpImageUrl,
       korName: '다이아몬드 푸시업',
+      guide: diamondPushUpGuide,
+      shortDes: diamondPushUpShort,
     ),
-    'shortDes': diamondPushUpShort,
     'hashTag': diamondPushUpTag,
   },
   // 'Bench Press': {
@@ -68,8 +70,9 @@ Map<String, Map<String, dynamic>> legsExerciseList = {
       isReadyForAI: true,
       imageUrl: squatImageUrl,
       korName: '스쿼트',
+      guide: squatGuide,
+      shortDes: squatShort,
     ),
-    'shortDes': squatShort,
     'hashTag': squatTag,
   },
   // 'Lunge': {
@@ -95,8 +98,9 @@ Map<String, Map<String, dynamic>> pullUpExerciseList = {
       isReadyForAI: true,
       imageUrl: pullUpImageUrl,
       korName: '풀업',
+      guide: pullUpGuide,
+      shortDes: pullUpShort,
     ),
-    'shortDes': pullUpShort,
     'hashTag': pullUpTag,
   },
 };

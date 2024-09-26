@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'package:ait_project/data/muscle_list.dart';
 import 'package:ait_project/main.dart';
@@ -23,21 +24,18 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
           'name': entry.key,
           'image': entry.value['image'],
           'nextPage': entry.value['nextPage'],
-          'shortDes': entry.value['shortDes'],
           'hashTag': entry.value['hashTag'],
         }));
     allExercises.addAll(legsExerciseList.entries.map((entry) => {
           'name': entry.key,
           'image': entry.value['image'],
           'nextPage': entry.value['nextPage'],
-          'shortDes': entry.value['shortDes'],
           'hashTag': entry.value['hashTag'],
         }));
     allExercises.addAll(pullUpExerciseList.entries.map((entry) => {
           'name': entry.key,
           'image': entry.value['image'],
           'nextPage': entry.value['nextPage'],
-          'shortDes': entry.value['shortDes'],
           'hashTag': entry.value['hashTag'],
         }));
   }
@@ -130,21 +128,18 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
                       'name': entry.key,
                       'image': entry.value['image'],
                       'nextPage': entry.value['nextPage'],
-                      'shortDes': entry.value['shortDes'],
                       'hashTag': entry.value['hashTag'],
                     }).toList()), // Chest 리스트
                 _buildExerciseList(legsExerciseList.entries.map((entry) => {
                       'name': entry.key,
                       'image': entry.value['image'],
                       'nextPage': entry.value['nextPage'],
-                      'shortDes': entry.value['shortDes'],
                       'hashTag': entry.value['hashTag'],
                     }).toList()), // Legs 리스트
                 _buildExerciseList(pullUpExerciseList.entries.map((entry) => {
                       'name': entry.key,
                       'image': entry.value['image'],
                       'nextPage': entry.value['nextPage'],
-                      'shortDes': entry.value['shortDes'],
                       'hashTag': entry.value['hashTag'],
                     }).toList()), // Back 리스트
               ],
@@ -162,10 +157,12 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
         
         return GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => exercise['nextPage']),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => exercise['nextPage']),
+            // );
+            Get.to(exercise['nextPage']);
+            
           },
           child: Padding(
             padding: const EdgeInsets.only(top: 20, left: 15, right: 15), // 컨테이너 외부 패딩
@@ -184,7 +181,7 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
                       padding: const EdgeInsets.only(right: 5),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
+                        child: Image.asset(
                           exercise['image'],
                           width: 80,
                           height: 80,
@@ -200,7 +197,7 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            exercise['nextPage']?.korName ?? '운동 이름 없음',
+                            exercise['nextPage']?.korName ?? ' ',
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w900,
@@ -210,7 +207,7 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
                           Padding(
                             padding: const EdgeInsets.only(top: 3, bottom: 5),
                             child: Text(
-                              exercise['shortDes'] ?? '',
+                              exercise['nextPage']?.shortDes ?? ' ',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
