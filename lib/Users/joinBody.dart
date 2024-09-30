@@ -1,4 +1,5 @@
 // 패키지
+import 'package:ait_project/utils/textform_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,23 @@ class JoinBodyPageState extends State<JoinBodyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: aitNavy,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          '회원가입',
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+            fontSize: 25,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         top: true,
         child: Center(
@@ -48,39 +66,24 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                     autovalidateMode: _autovalidateMode,
                     onChanged: _updateFormValidity,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                       child: Column(
                         children: [
-                          SizedBox(height: mediaHeight(context, 0.03)),
                           
                           // 타이틀
                           Center(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text(
-                                  '회원가입',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                    fontSize: 25,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    LinearPercentIndicator(
-                                      width: 150,
-                                      animation: true,
-                                      animationDuration: 500,
-                                      lineHeight: 5,
-                                      percent: 1.0,
-                                      backgroundColor: Colors.grey,
-                                      progressColor: aitGreen,
-                                      barRadius: const Radius.circular(100),
-                                    ),
-                                  ],
+                                LinearPercentIndicator(
+                                  width: 150,
+                                  animation: true,
+                                  animationDuration: 500,
+                                  lineHeight: 5,
+                                  percent: 1.0,
+                                  backgroundColor: Colors.grey,
+                                  progressColor: aitGreen,
+                                  barRadius: const Radius.circular(100),
                                 ),
                               ],
                             ),
@@ -245,91 +248,6 @@ class JoinBodyPageState extends State<JoinBodyPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class CustomTextField extends StatelessWidget {
-  final String label;
-  final bool obscureText;
-  final void Function(String) onChanged;
-  final void Function(String?) onSaved;
-  final String? Function(String?) validator;
-  final List<TextInputFormatter>? inputFormatters;
-  final AutovalidateMode autovalidateMode;
-
-  const CustomTextField({
-    super.key,
-    required this.label,
-    this.obscureText = false,
-    required this.onChanged,
-    required this.onSaved,
-    required this.validator,
-    this.inputFormatters,
-    this.autovalidateMode = AutovalidateMode.disabled,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top:10, bottom:10),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 20),
-            child: SizedBox(
-              child: TextFormField(
-                autovalidateMode: autovalidateMode,
-                obscureText: obscureText,
-                onChanged: onChanged,
-                onSaved: onSaved,
-                validator: validator,
-                inputFormatters: inputFormatters,
-                decoration: InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: Colors.white),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: aitGreen),
-                  ),
-                  errorBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: Colors.white),
-                  ),
-                  focusedErrorBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: aitGreen),
-                  ),
-                  errorStyle: TextStyle(
-                    color: aitGreen,
-                    fontSize: 15,
-                    height: 2,
-                  ),
-                  contentPadding: const EdgeInsets.only(bottom: 10),
-                ),
-                style: const TextStyle(
-                  decorationThickness: 0,
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

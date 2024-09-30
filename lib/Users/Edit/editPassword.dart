@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:ait_project/main.dart';
 
+import '../../utils/textform_field.dart';
+
 class EditPassword extends StatefulWidget {
   const EditPassword({Key? key}) : super(key: key);
 
@@ -218,91 +220,6 @@ class _EditPasswordState extends State<EditPassword> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class CustomTextField extends StatelessWidget {
-  final String label;
-  final bool obscureText;
-  final void Function(String) onChanged;
-  final void Function(String?) onSaved;
-  final String? Function(String?) validator;
-  final AutovalidateMode autovalidateMode;
-  final TextEditingController controller;
-
-  const CustomTextField({
-    Key? key,
-    required this.label,
-    this.obscureText = false,
-    required this.onChanged,
-    required this.onSaved,
-    required this.validator,
-    this.autovalidateMode = AutovalidateMode.disabled,
-    required this.controller,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 20),
-            child: SizedBox(
-              child: TextFormField(
-                controller: controller,
-                autovalidateMode: autovalidateMode,
-                obscureText: obscureText,
-                onChanged: onChanged,
-                onSaved: onSaved,
-                validator: validator,
-                decoration: InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: aitGreen),
-                  ),
-                  errorBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white),
-                  ),
-                  focusedErrorBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: aitGreen),
-                  ),
-                  errorStyle: TextStyle(
-                    color: aitGreen,
-                    fontSize: 15,
-                    height: 2,
-                  ),
-                  contentPadding: const EdgeInsets.only(bottom: 10),
-                ),
-                style: const TextStyle(
-                  decorationThickness: 0,
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
