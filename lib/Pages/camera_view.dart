@@ -1,10 +1,14 @@
 // 카메라 화면 UI + 카메라에서 이미지 받아와서 포즈 추출기에 전달 + 스켈레톤 그려주기 + 줌인 줌아웃 기능 + 전면 후면 카메라 전환 기능
+// ignore_for_file: unused_field
+
 import 'dart:io';
 
+import 'package:ait_project/models/workout_result.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -21,6 +25,7 @@ final _orientations = {
   DeviceOrientation.landscapeRight: 270,
 };
 // 카메라 화면
+// ignore: must_be_immutable
 class CameraView extends StatefulWidget {
   CameraView({
     Key? key,
@@ -50,6 +55,7 @@ class _CameraViewState extends State<CameraView> {
   ScreenMode _mode = ScreenMode.liveFeed;
   // 카메라 다루는 변수
   CameraController? _controller;
+
   File? _image;
   ImagePicker? _imagePicker;
 
@@ -90,13 +96,6 @@ class _CameraViewState extends State<CameraView> {
     if (_cameraIndex != -1) {
       _startLiveFeed();
     }
-
-    // for (var i = 0; i < cameras.length; i++) {
-    //   if (cameras[i].lensDirection == widget.initialDirection) {
-    //     _cameraIndex = i;
-    //   }
-    // }
-    // _startLiveFeed();
   }
 
   @override
@@ -123,7 +122,7 @@ class _CameraViewState extends State<CameraView> {
           )
         ],
       ),
-      // 카메라 화면 보여주기 + 화면에서 실시간으로 포즈. ㅜ출
+      // 카메라 화면 보여주기 + 화면에서 실시간으로 포즈 추출
       body: _liveFeedBody(),
       floatingActionButton: _floatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -136,27 +135,48 @@ class _CameraViewState extends State<CameraView> {
         width: 70.0,
         child: FloatingActionButton(
           child: widget.workoutAnalysis.end
-              ? Icon(Icons.poll ,size: 40)
-              : (widget.workoutAnalysis.detecting
-                  ? Icon(Icons.pause, size: 40)
-                  : Icon(Icons.play_arrow_rounded, size: 40)),
+              ? const Icon(Icons.poll ,size: 40) // 그래프 아이콘 (end = true)
+              : (widget.workoutAnalysis.detecting // (end = false)
+                  ? const Icon(Icons.pause, size: 40) // 일시정지 아이콘 (detecting = true)
+                  : const Icon(Icons.play_arrow_rounded, size: 40)), // 재생 아이콘 (detecting = false)
           onPressed: () async {
             try{
+              // 그래프 아이콘 (end = true) 일 때 누르면 동작
               if (widget.workoutAnalysis.end){
-                print("1");
-                int count = 0;
-                Navigator.popUntil(context, (route) => count++ == 3); // pop until go to mainpage
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => WorkoutResultPage(workoutResult: widget.workoutAnalysis.makeWorkoutResult())
-                  ),
-                );
-              } else if (widget.workoutAnalysis.detecting) {
-                print("2");
+
+                // 카메라 컨트롤러가 있다면 해제
+                if (_controller != null) {
+                  await _controller!.stopImageStream();
+                  await _controller!.dispose();
+                  _controller = null;
+                }
+
+                try {              
+                  // 운동이 끝났을 때
+                  WorkoutResult workoutResult = await widget.workoutAnalysis.makeWorkoutResult();
+
+                  // 현재 라우트 스택 출력
+                  print('Current route stack: ${Get.routeTree}');
+
+                  // WorkDetailPage로 돌아가기 시도
+                  Get.until((route) {
+                    print('Checking route: ${route.settings.name}');
+                    return route.settings.name == '/WorkDetailPage';
+                  });
+
+                  // 결과 페이지로 이동
+                  await Get.to(() => WorkoutResultPage(workoutResult: workoutResult));
+                } catch (e) {
+                  print('운동 종료 처리 중 오류 발생: $e');
+                  Get.snackbar('오류', '오류가 발생했습니다. 다시 시도해주세요.');
+                }
+
+              } else if (widget.workoutAnalysis.detecting) { 
+                // detecting = true 일 때 stopAnalysing()을 호출하여 운동을 일시정지
                 widget.workoutAnalysis.stopAnalysing();
               } else {
-                print("3");
-                widget.workoutAnalysis.startDetectingDelayed(); // 8 second later
+                // 운동이 시작되지 않았을 때 startDetectingDelayed()를 호출하여 지연 후 운동을 시작
+                widget.workoutAnalysis.startDetectingDelayed(); 
               }
             } catch(e){
               print(e);
@@ -245,9 +265,11 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Future _stopLiveFeed() async {
-    await _controller?.stopImageStream();
-    await _controller?.dispose();
-    _controller = null;
+    if (_controller != null) {
+      await _controller!.stopImageStream();
+      await _controller!.dispose();
+      _controller = null;
+    }
   }
 
   // 전면<->후면 카메라 변경 함수
@@ -268,15 +290,11 @@ class _CameraViewState extends State<CameraView> {
       allBytes.putUint8List(plane.bytes);
     }
 
-    final bytes = allBytes.done().buffer.asUint8List();
+    // final bytes = allBytes.done().buffer.asUint8List();
 
-    final Size imageSize = Size(image.width.toDouble(), image.height.toDouble());
+    // final Size imageSize = Size(image.width.toDouble(), image.height.toDouble());
 
     final camera = cameras[_cameraIndex];
-
-    // final imageRotation = 
-    //   InputImageRotationValue.fromRawValue(camera.sensorOrientation);
-    // if (imageRotation == null) return;
 
     final sensorOrientation = camera.sensorOrientation;
     InputImageRotation? imageRotation;
@@ -334,17 +352,17 @@ class _CameraViewState extends State<CameraView> {
       processingString = '운동분석종료';
     } else{
       if (widget.workoutAnalysis.detecting) {
-        processingString = '운동분석중';
+        processingString = '운동분석';
       } else {
-        processingString = '운동분석대기중';
+        processingString = '운동분석대기';
       }
     }
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(processingString),
         Text("${widget.title} 개수: ${widget.workoutAnalysis.count}"),
       ],
-      crossAxisAlignment: CrossAxisAlignment.center
     );
   }
 
@@ -363,10 +381,13 @@ class _CameraViewState extends State<CameraView> {
           ));
         }
       } catch (e) {
-        print("앵글을 텍스트로 불러오는데 에러. 에러코드 : $e");
+        print("각도 텍스트화 에러. 에러코드 : $e");
       }
     }
-    return Column(children: li, crossAxisAlignment: CrossAxisAlignment.start,);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: li,
+    );
   }
 
   Widget _showFeedbackText() {
@@ -384,9 +405,12 @@ class _CameraViewState extends State<CameraView> {
           ));
         }
       } catch (e) {
-        print("피드백 결과를 불러오는데 에러. 에러코드 : $e");
+        print("피드백 결과 불러오기 에러. 에러코드 : $e");
       }
     }
-    return Column(children: li, crossAxisAlignment: CrossAxisAlignment.start,);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: li,
+    );
   }
 }

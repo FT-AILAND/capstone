@@ -59,7 +59,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
   @override
   void dispose() async {
     _canProcess = false;
-    await poseDetector.close();
+    poseDetector.close();
     super.dispose();
   }
 
@@ -92,15 +92,17 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
     // poseDetector에서 추출된 포즈 가져오기
     List<Pose> poses = await poseDetector.processImage(inputImage);
 
-    print('Found ${poses.length} poses');
+    // 콘솔 확인용
+    // print('Found ${poses.length} poses');
 
     // 이미지가 정상적이면 포즈에 스켈레톤 그려주기
     if (inputImage.metadata?.size != null && 
       inputImage.metadata?.rotation != null) {
         if (poses.isNotEmpty && workoutAnalysis.detecting && !workoutAnalysis.end) {
           workoutAnalysis.detect(poses[0]); // analysis workout by poseDector pose value
-          print("현재 ${widget.workoutName} 개수 :");
-          print(workoutAnalysis.count);
+          // 콘솔 확인용 (너무 많이 떠서 없앰)
+          // print("현재 ${widget.workoutName} 개수 :");
+          // print(workoutAnalysis.count);
         }
         final painter = PosePainter(
           poses, 

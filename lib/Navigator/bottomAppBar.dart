@@ -50,7 +50,7 @@ class _BulidBottomAppBarState extends State<BulidBottomAppBar>
         body: TabBarView(
           children: [
             workPage(),
-            recordPage(),
+            RecordPage(),
             goalPage(),
             MorePage()
           ],

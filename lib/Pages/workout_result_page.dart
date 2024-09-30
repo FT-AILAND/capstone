@@ -3,8 +3,7 @@ import '/Navigator/customized_bar_chart.dart';
 import '/models/workout_result.dart';
 import '/utils/function_utils.dart';
 
-import 'package:flutter/material.dart';
-
+// ignore: must_be_immutable
 class WorkoutResultPage extends StatelessWidget {
   WorkoutResultPage({Key? key, required this.workoutResult}) : super(key: key);
   WorkoutResult workoutResult;

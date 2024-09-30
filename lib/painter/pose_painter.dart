@@ -27,16 +27,17 @@ class PosePainter extends CustomPainter {
       ..strokeWidth = 3.0
       ..color = Colors.yellow;
 
-    // 초록: 오른쪽 선 색깔(오른팔~오른다리)
+    // 파랑: 오른쪽 선 색깔(오른팔~오른다리)
     final rightPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..color = Colors.blueAccent;
 
-    final centerPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.black;
+    // 안 쓰는데 있어서 주석처리
+    // final centerPaint = Paint()
+    //   ..style = PaintingStyle.stroke
+    //   ..strokeWidth = 3.0
+    //   ..color = Colors.black;
 
     // 추출된 관절 포인트 갯수만큼 점 그리기
     for (final pose in poses) {
