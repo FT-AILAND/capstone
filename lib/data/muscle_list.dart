@@ -34,31 +34,58 @@ Map<String, Map<String, dynamic>> chestExerciseList = {
     ),
     'hashTag': pushUpTag,
   },
-  'Diamond Push Up': {
-    'image': diamondPushUpImageUrl,
-    'nextPage': WorkDetailPage(
-      workoutName: 'Diamond Push Up',
-      description: diamondPushUpDescription,
-      isReadyForAI: false,
-      imageUrl: diamondPushUpImageUrl,
-      korName: '다이아몬드 푸시업',
-      guide: diamondPushUpGuide,
-      shortDes: diamondPushUpShort,
-    ),
-    'hashTag': diamondPushUpTag,
-  },
-  // 'Bench Press': {
-  //   'image':
-  //       'https://image.freepik.com/free-photo/focused-man-doing-workout-weight-bench_329181-14155.jpg',
+  // 'Diamond Push Up': {
+  //   'image': diamondPushUpImageUrl,
   //   'nextPage': WorkDetailPage(
-  //   )
+  //     workoutName: 'Diamond Push Up',
+  //     description: diamondPushUpDescription,
+  //     isReadyForAI: false,
+  //     imageUrl: diamondPushUpImageUrl,
+  //     korName: '다이아몬드 푸시업',
+  //     guide: diamondPushUpGuide,
+  //     shortDes: diamondPushUpShort,
+  //   ),
+  //   'hashTag': diamondPushUpTag,
   // },
-  // 'Barbell Curl': {
-  //   'image':
-  //       'https://images.pexels.com/photos/1431282/pexels-photo-1431282.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260',
-  //   'nextPage': WorkDetailPage(
-  //   )
-  // },
+    'Bench Press': {
+      'image': benchPressImageUrl,
+      'nextPage': WorkDetailPage(
+        workoutName: 'Bench Press',
+        description: benchPressDescription,
+        isReadyForAI: false,
+        imageUrl: benchPressImageUrl,
+        korName: '벤치프레스',
+        guide: benchPressGuide,
+        shortDes: benchPressShort,
+      ),
+      'hashTag': benchPressTag,
+    },
+    'Barbell Curl': {
+      'image': curlsImageUrl,
+      'nextPage': WorkDetailPage(
+        workoutName: 'Barbell Curl',
+        description: curlsDescription,
+        isReadyForAI: false,
+        imageUrl: curlsImageUrl,
+        korName: '바벨컬',
+        guide: curlsGuide,
+        shortDes: curlsShort,
+      ),
+      'hashTag': curlsTag,
+    },
+    'Rowing Machine': {
+      'image': rowingMachineImageUrl,
+      'nextPage': WorkDetailPage(
+        workoutName: 'Rowing Machine',
+        description: rowingMachineDescription,
+        isReadyForAI: false,
+        imageUrl: rowingMachineImageUrl,
+        korName: '로잉머신',
+        guide: rowingMachineGuide,
+        shortDes: rowingMachineShort,
+      ),
+      'hashTag': rowingMachineTag,
+    },
 };
 
 Map<String, Map<String, dynamic>> legsExerciseList = {
@@ -75,18 +102,19 @@ Map<String, Map<String, dynamic>> legsExerciseList = {
     ),
     'hashTag': squatTag,
   },
-  // 'Lunge': {
-  //   'image':
-  //       'https://images.pexels.com/photos/5067670/pexels-photo-5067670.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-  //   'nextPage': WorkDetailPage(
-  //   ),
-  // },
-  // 'DeadLift': {
-  //   'image':
-  //       'https://images.pexels.com/photos/791763/pexels-photo-791763.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-  //   'nextPage': WorkDetailPage(
-  //   ),
-  // },
+  'Dead Lift': {
+    'image': deadLiftImageUrl,
+    'nextPage': WorkDetailPage(
+      workoutName: 'Dead Lift',
+      description: deadLiftDescription,
+      isReadyForAI: false,
+      imageUrl: deadLiftImageUrl,
+      korName: '데드리프트',
+      guide: deadLiftGuide,
+      shortDes: deadLiftShort,
+    ),
+    'hashTag': deadLiftTag,
+  },
 };
 
 Map<String, Map<String, dynamic>> pullUpExerciseList = {
@@ -102,5 +130,18 @@ Map<String, Map<String, dynamic>> pullUpExerciseList = {
       shortDes: pullUpShort,
     ),
     'hashTag': pullUpTag,
+  },
+  'Plank': {
+    'image': plankImageUrl,
+    'nextPage': WorkDetailPage(
+      workoutName: 'Plank',
+      description: plankDescription,
+      isReadyForAI: false,
+      imageUrl: plankImageUrl,
+      korName: '플랭크',
+      guide: plankGuide,
+      shortDes: plankShort,
+    ),
+    'hashTag': plankTag,
   },
 };

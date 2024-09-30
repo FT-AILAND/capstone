@@ -148,42 +148,70 @@ class _WorkDetailPageState extends State<WorkDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          '가이드',
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            fontStyle: FontStyle.italic,
-                          ),
+                        const Row(
+                          children: [
+                            Text(
+                              '가이드',
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 20, right: 10),
+                                child: Divider(
+                                  color: Colors.white60,
+                                  thickness: 1,
+                                  height: 20,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 20),
                         Text(
                           widget.guide,
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),
 
+                        const SizedBox(height: 30),
+
+                        const Row(
+                          children: [
+                            Text(
+                              '운동설명',
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 20, right: 10),
+                                child: Divider(
+                                  color: Colors.white60,
+                                  thickness: 1,
+                                  height: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 20),
-
-                        const Text(
-                          '운동설명',
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
                         Text(
                           widget.description,
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),

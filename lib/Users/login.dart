@@ -37,15 +37,6 @@ class LogInPageState extends State<LogInPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          '로그인',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-            fontSize: 25,
-          ),
-        ),
-        centerTitle: true,
       ),
       body: SafeArea(
         top: true,
@@ -63,7 +54,7 @@ class LogInPageState extends State<LogInPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 25),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -71,11 +62,11 @@ class LogInPageState extends State<LogInPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '- AIT -',
+                                    'AIT',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,
                                       color: aitGreen,
-                                      fontSize: 35,
+                                      fontSize: 50,
                                     ),
                                   ),
                                 ],
@@ -113,6 +104,59 @@ class LogInPageState extends State<LogInPage> {
                                 return null;
                               },
                             ),
+
+                            const SizedBox(height: 10),
+
+                            // 로그인 버튼
+                            LogInButton(
+                              label: '로그인',
+                              onPressed: () async {
+                                setState(() {
+                                  // 제출 버튼을 누르면 autovalidateMode를 always로 변경
+                                  _autovalidateMode = AutovalidateMode.always;
+                                });
+
+                                if (_formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+
+                                  try {
+                                    UserCredential userCredential =
+                                        await FirebaseAuth.instance
+                                            .signInWithEmailAndPassword(
+                                                email: email,
+                                                password: password);
+
+                                    if (userCredential.user != null) {
+                                      // 로그인 성공
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              BulidBottomAppBar(index: 0),
+                                        ),
+                                        (route) => false,
+                                      );
+                                    } else {
+                                      // 사용자 정보가 null인 경우
+                                      flutterToast("로그인에 실패했습니다. 다시 시도해주세요.");
+                                    }
+                                  } on FirebaseAuthException catch (e) {
+                                    if (e.code == 'user-not-found') {
+                                      flutterToast("존재하지 않는 사용자입니다.");
+                                    } else if (e.code == 'wrong-password') {
+                                      flutterToast('비밀번호가 틀렸습니다.');
+                                    } else {
+                                      flutterToast(
+                                          '로그인 중 오류가 발생했습니다: ${e.message}');
+                                    }
+                                  } catch (e) {
+                                    flutterToast('알 수 없는 오류가 발생했습니다.');
+                                  }
+                                }
+                              },
+                              backgroundColor:
+                                  _isFormValid ? aitGreen : aitGrey,
+                            ),
                           ],
                         ),
                       ),
@@ -120,54 +164,8 @@ class LogInPageState extends State<LogInPage> {
                   ),
                 ),
               ),
-
-              // 로그인 버튼
-              LogInButton(
-                label: '로그인',
-                onPressed: () async { 
-                  setState(() {
-                    // 제출 버튼을 누르면 autovalidateMode를 always로 변경
-                    _autovalidateMode = AutovalidateMode.always;
-                  });
-                  
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    
-                    try {
-                      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: email,
-                        password: password
-                      );
-                      
-                      if (userCredential.user != null) {
-                        // 로그인 성공
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => BulidBottomAppBar(index: 0),
-                          ), (route) => false,
-                        );
-                      } else {
-                        // 사용자 정보가 null인 경우
-                        flutterToast("로그인에 실패했습니다. 다시 시도해주세요.");
-                      }
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'user-not-found') {
-                        flutterToast("존재하지 않는 사용자입니다.");
-                      } else if (e.code == 'wrong-password') {
-                        flutterToast('비밀번호가 틀렸습니다.');
-                      } else {
-                        flutterToast('로그인 중 오류가 발생했습니다: ${e.message}');
-                      }
-                    } catch (e) {
-                      flutterToast('알 수 없는 오류가 발생했습니다.');
-                    }
-                  }
-                },
-                backgroundColor: _isFormValid ? aitGreen : aitGrey,
-              ),
               
-              SizedBox(height: mediaHeight(context, 0.03)),
+              SizedBox(height: mediaHeight(context, 0.15)),
             ],
           ),
         ),
@@ -190,26 +188,23 @@ class LogInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: backgroundColor,
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-          onPressed: onPressed,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+        ),
+        onPressed: onPressed,
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
