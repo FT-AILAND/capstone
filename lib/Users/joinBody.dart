@@ -197,21 +197,21 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                       });
 
                       // 랜덤 문서 id로 Goal테이블에 문서 추가
-                      FirebaseFirestore.instance.collection('Goal').doc(uid).set({
-                        'uid' : uid,
-                        'push_up': 0,
-                        'squat': 0,
-                        'pull_up': 0,
-                      });
-
-                      // child 테이블? 만드는 방법
-                      // 현재 사용자의 uid를 문서id로 사용하는 Goal 테이블
                       // FirebaseFirestore.instance.collection('Goal').doc(uid).set({
                       //   'uid' : uid,
                       //   'push_up': 0,
                       //   'squat': 0,
                       //   'pull_up': 0,
                       // });
+
+                      // child 테이블? 만드는 방법
+                      // 현재 사용자의 uid를 문서id로 사용하는 Goal 테이블
+                      FirebaseFirestore.instance.collection('Goal').doc(uid).set({
+                        'uid' : uid,
+                        'push_up': 0,
+                        'squat': 0,
+                        'pull_up': 0,
+                      });
                       
                       //홈으로 이동
                       Navigator.pushAndRemoveUntil(
