@@ -105,7 +105,16 @@ class _RecordPageState extends State<RecordPage> {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('기록이 없습니다'));
+                  return const Center(
+                    child: Text(
+                      '기록이 없습니다.', 
+                      style: TextStyle(
+                        fontSize: 25, 
+                        fontWeight: FontWeight.bold, 
+                        color: Colors.white
+                      ),
+                    )
+                  );
                 }
 
                 return ListView.builder(

@@ -1,3 +1,4 @@
+import 'package:ait_project/Pages/calendar.dart';
 import 'package:ait_project/Pages/help.dart';
 import 'package:flutter/material.dart';
 
@@ -79,7 +80,15 @@ class MorePage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            _buildMenuItem('알림설정', onTap: () {}),
+            _buildMenuItem('알림설정', onTap: () {
+              // 임시로
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ExerciseCalendarPage(),
+                ),
+              );
+            }),
             _buildMenuItem('도움말', onTap: () {
               Navigator.push(
                 context,
