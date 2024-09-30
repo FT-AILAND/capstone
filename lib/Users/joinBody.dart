@@ -196,14 +196,21 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                         throw error;  // 오류를 다시 던져서 catch 블록에서 처리하도록 합니다.
                       });
 
+                      // 랜덤 문서 id로 Goal테이블에 문서 추가
+                      FirebaseFirestore.instance.collection('Goal').doc(uid).set({
+                        'uid' : uid,
+                        'push_up': 0,
+                        'squat': 0,
+                        'pull_up': 0,
+                      });
 
-                      // (필요시) child 테이블? 만드는 방법
-                      // ex.현재 사용자의 uid를 사용하는 leaderboard_DB 테이블
-                      // FirebaseFirestore.instance.collection('leaderboard_DB').doc(uid).set({
+                      // child 테이블? 만드는 방법
+                      // 현재 사용자의 uid를 문서id로 사용하는 Goal 테이블
+                      // FirebaseFirestore.instance.collection('Goal').doc(uid).set({
+                      //   'uid' : uid,
                       //   'push_up': 0,
-                      //   'squrt': 0,
+                      //   'squat': 0,
                       //   'pull_up': 0,
-                      //   'score': 0
                       // });
                       
                       //홈으로 이동

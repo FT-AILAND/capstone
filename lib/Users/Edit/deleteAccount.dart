@@ -127,6 +127,20 @@ class _DeleteAccountState extends State<DeleteAccount> {
         
         // Firestore에서 사용자 문서 삭제
         await _firestore.collection('Users').doc(user.uid).delete();
+
+        // exercise_DB 컬렉션에서 user.uid가 포함된 문서 삭제
+        QuerySnapshot exerciseSnapshot = await _firestore.collection('exercise_DB')
+            .where('uid', isEqualTo: user.uid).get();
+        for (var doc in exerciseSnapshot.docs) {
+          await doc.reference.delete();
+        }
+        
+        // Goal 컬렉션에서 user.uid가 포함된 문서 삭제
+        QuerySnapshot goalSnapshot = await _firestore.collection('Goal')
+            .where('uid', isEqualTo: user.uid).get();
+        for (var doc in goalSnapshot.docs) {
+          await doc.reference.delete();
+        }
         
         // 계정 삭제
         await user.delete();
