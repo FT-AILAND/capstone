@@ -1,28 +1,29 @@
-import 'dart:async';
 import 'dart:math';
+
+import 'package:ait_project/main.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '/models/workout_result.dart';
 
 class CustomizedBarChart extends StatefulWidget {
   CustomizedBarChart({Key? key, required this.workoutResult}) : super(key: key);
-  WorkoutResult workoutResult;
+  final WorkoutResult workoutResult;
 
   @override
   State<StatefulWidget> createState() => CustomizedBarChartState();
 }
 
-class CustomizedBarChartState extends State<CustomizedBarChart> {
+class CustomizedBarChartState extends State<CustomizedBarChart> with SingleTickerProviderStateMixin {
   final Color barBackgroundColor = const Color(0xff72d8bf);
-  final Duration animDuration = const Duration(milliseconds: 250);
+  final Duration animDuration = const Duration(milliseconds: 500);
   late List<String> feedbackNames;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   int touchedIndex = -1;
-  bool isPlaying = false;
-  late int maxFeedback;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     if(widget.workoutResult.workoutName == 'push_up'){
       feedbackNames = pushUpFeedbackNames;
@@ -31,60 +32,78 @@ class CustomizedBarChartState extends State<CustomizedBarChart> {
     } else { // squat
       feedbackNames = squatFeedbackNames;
     }
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: animDuration,
+    );
+
+    _animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        color: const Color(0xff81e5cd),
-        child: Stack(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
+      child: Container(
+        color: aitNavy,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 30, bottom: 10, left: 15, right: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Row(
+                children: [
                   const Text(
-                    '운동 분석 결과',
+                    '피드백 그래프',
                     style: TextStyle(
-                        color: Color(0xff0f4a3c),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: 4,
-                  ),
-                  Text(
-                    '${widget.workoutResult.workoutName}', // 서버에서 운동 종목 받아야 함
-                    style: const TextStyle(
-                        color: Color(0xff379982),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: 38,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: BarChart(
-                        mainBarData(),
-                        swapAnimationDuration: animDuration,
-                      ),
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const SizedBox(
-                    height: 12,
+                  const SizedBox(width: 10), // 텍스트와 구분선 사이의 간격
+                  Expanded(
+                    child: Container(
+                      height: 1, // 구분선의 높이
+                      color: Colors.white, // 구분선의 색상
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+
+              const SizedBox(height: 20),
+
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: AnimatedBuilder(
+                    animation: _animation,
+                    builder: (context, child) {
+                      return BarChart(
+                        mainBarData(),
+                        swapAnimationDuration: animDuration,
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );
@@ -94,7 +113,6 @@ class CustomizedBarChartState extends State<CustomizedBarChart> {
     int x,
     double y, {
     bool isTouched = false,
-    Color barColor = Colors.white,
     double width = 22,
     List<int> showTooltips = const [],
   }) {
@@ -102,16 +120,16 @@ class CustomizedBarChartState extends State<CustomizedBarChart> {
       x: x,
       barRods: [
         BarChartRodData(
-          toY: isTouched ? y + 1 : y, // `y` 대신 `toY`로 변경 (새로운 버전에서 `toY`를 사용)
-          color: isTouched ? Colors.yellow : barColor, // `colors` 대신 `color`로 변경 (단일 색상)
+          toY: max(y * _animation.value, 0.1),  // 최소 높이 설정
+          color: isTouched ? Colors.white : aitGreen,
           width: width,
           borderSide: isTouched
-              ? BorderSide(color: Colors.yellow, width: 1)
-              : const BorderSide(color: Colors.white, width: 0),
+              ? BorderSide(color: Colors.white, width: 1)
+              : BorderSide(color: aitGreen, width: 0),
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
-            toY: widget.workoutResult.count!.toDouble(), // `y` 대신 `toY`로 변경
-            color: barBackgroundColor, // `colors` 대신 `color`로 변경 (단일 색상)
+            toY: max(widget.workoutResult.count!.toDouble(), 1),  // 최소 높이 설정
+            color: Colors.white30,
           ),
         ),
       ],
@@ -119,74 +137,36 @@ class CustomizedBarChartState extends State<CustomizedBarChart> {
     );
   }
 
-  // 서버에서 값 받아오기
   List<BarChartGroupData> showingGroups() => List.generate(widget.workoutResult.feedbackCounts!.length, (i) {
-        switch (i) {
-          case 0:
-            return makeGroupData(0, widget.workoutResult.feedbackCounts![i].toDouble(), isTouched: i == touchedIndex);
-          case 1:
-            return makeGroupData(1, widget.workoutResult.feedbackCounts![i].toDouble(), isTouched: i == touchedIndex);
-          case 2:
-            return makeGroupData(2, widget.workoutResult.feedbackCounts![i].toDouble(), isTouched: i == touchedIndex);
-          case 3:
-            return makeGroupData(3, widget.workoutResult.feedbackCounts![i].toDouble(), isTouched: i == touchedIndex);
-          case 4:
-            return makeGroupData(4, widget.workoutResult.feedbackCounts![i].toDouble(), isTouched: i == touchedIndex);
-          case 5:
-            return makeGroupData(5, widget.workoutResult.feedbackCounts![i].toDouble(), isTouched: i == touchedIndex);
-          default:
-            return throw Error();
-        }
+        return makeGroupData(i, widget.workoutResult.feedbackCounts![i].toDouble(), isTouched: i == touchedIndex);
       });
 
   BarChartData mainBarData() {
     return BarChartData(
-      maxY: widget.workoutResult.count!.toDouble(),
+      maxY: max(widget.workoutResult.count!.toDouble(), 1),  // 최소 높이 설정
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              String weekDay;
-              switch (group.x.toInt()) {
-                case 0:
-                  weekDay = feedbackNames[0];
-                  break;
-                case 1:
-                  weekDay = feedbackNames[1];
-                  break;
-                case 2:
-                  weekDay = feedbackNames[2];
-                  break;
-                case 3:
-                  weekDay = feedbackNames[3];
-                  break;
-                case 4:
-                  weekDay = feedbackNames[4];
-                  break;
-                case 5:
-                  weekDay = feedbackNames[5];
-                  break;
-                default:
-                  throw Error();
-              }
-              return BarTooltipItem(
-                weekDay + '\n',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: (rod.toY - 1).toString(),
-                    style: const TextStyle(
-                      color: Colors.yellow,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+            return BarTooltipItem(
+              feedbackNames[group.x.toInt()] + '\n',
+              const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              children: <TextSpan>[
+                TextSpan(
+                  text: (rod.toY / _animation.value).toStringAsFixed(0),
+                  style: const TextStyle(
+                    color: Colors.yellow,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              );
-            }),
+                ),
+              ],
+            );
+          },
+        ),
         touchCallback: (FlTouchEvent event, barTouchResponse) {
           setState(() {
             if (!event.isInterestedForInteractions ||
@@ -201,48 +181,48 @@ class CustomizedBarChartState extends State<CustomizedBarChart> {
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: AxisTitles(
+        rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
+        // 상단 텍스트
         topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
+          sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (double value, TitleMeta meta) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  widget.workoutResult.feedbackCounts![value.toInt()].toString(),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12),
+                ),
+              );
+            },
+          ),
         ),
+        // 하단 텍스트
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
             getTitlesWidget: (double value, TitleMeta meta) {
-              final style = TextStyle(
-                color: Colors.black54,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+              return Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: SizedBox(
+                  width: 40,
+                  child: Text(
+                    feedbackNames[value.toInt()],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 4,  // 최대 4줄까지 표시
+                    overflow: TextOverflow.ellipsis, 
+                  ),
+                ),
               );
-              String text;
-              switch (value.toInt()) {
-                case 0:
-                  text = feedbackNames[0];
-                  break;
-                case 1:
-                  text = feedbackNames[1];
-                  break;
-                case 2:
-                  text = feedbackNames[2];
-                  break;
-                case 3:
-                  text = feedbackNames[3];
-                  break;
-                case 4:
-                  text = feedbackNames[4];
-                  break;
-                case 5:
-                  text = feedbackNames[5];
-                  break;
-                default:
-                  text = feedbackNames[0];
-                  break;
-              }
-              return Text(text, style: style);
             },
-            reservedSize: 32,
+            reservedSize: 60,
           ),
         ),
         leftTitles: AxisTitles(
@@ -253,42 +233,35 @@ class CustomizedBarChartState extends State<CustomizedBarChart> {
         show: false,
       ),
       barGroups: showingGroups(),
-      gridData: FlGridData(show: false),
+      gridData: const FlGridData(show: false),
+      alignment: BarChartAlignment.spaceBetween,
     );
-  }
-
-  Future<dynamic> refreshState() async {
-    setState(() {});
-    await Future<dynamic>.delayed(
-        animDuration + const Duration(milliseconds: 50));
-    if (isPlaying) {
-      await refreshState();
-    }
   }
 }
 
+// feedbackNames lists remain unchanged
 List<String> pushUpFeedbackNames = [
-  '이완X', 
-  '수축X', 
-  '골반이\n올라감', 
-  '골반이\n내려감', 
-  '무릎이\n내려감',
-  '운동속도\n빠름',
+  '이완\n부족', 
+  '수축\n부족', 
+  '골반\n상승', 
+  '골반\n하강', 
+  '무릎\n하강',
+  '속도\n과다',
 ];
 
 List<String> pullUpFeedbackNames = [
-  '이완X', 
-  '수축X', 
-  '팔이\n흔들림', 
-  '반동을\n사용함', 
-  '운동속도가\n빠름',
+  '이완\n부족', 
+  '수축\n부족', 
+  '팔\n불안정', 
+  '반동\n사용', 
+  '속도\n과다',
 ];
 
 List<String> squatFeedbackNames = [
-  '이완X', 
-  '수축X',  
-  '엉덩이가\n먼저 수축', 
-  '무릎이\n먼저 수축', 
-  '무릎이\n앞으로 나옴',
-  '운동속도가\n빠름',
+  '이완\n부족', 
+  '수축\n부족',  
+  '엉덩이\n빠른\n수축', 
+  '무릎\n빠른\n수축', 
+  '무릎\n전방\n이동',
+  '속도\n과다',
 ];

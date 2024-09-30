@@ -1,3 +1,4 @@
+import 'package:ait_project/Pages/help.dart';
 import 'package:flutter/material.dart';
 
 // 파이어베이스
@@ -79,7 +80,14 @@ class MorePage extends StatelessWidget {
             const SizedBox(height: 20),
 
             _buildMenuItem('알림설정', onTap: () {}),
-            _buildMenuItem('도움말', onTap: () {}),
+            _buildMenuItem('도움말', onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HelpPage(),
+                ),
+              );
+            }),
             _buildTextButton('로그아웃', onTap: () => _showLogoutDialog(context)),
             _buildTextButton('회원탈퇴', onTap: () {
               Navigator.push(
