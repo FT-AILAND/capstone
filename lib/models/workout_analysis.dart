@@ -22,29 +22,26 @@ abstract class WorkoutAnalysis {
 
   void detect(Pose pose) {}
 
-  List<int> workoutToScore() {
-    return [0];
-  }
-
   void startDetecting() {
     _detecting = true;
   }
 
-    Future<void> startDetectingDelayed() async {
+  Future<void> startDetectingDelayed() async {
   }
 
   void stopDetecting() {
     _detecting = false;
   }
 
-  WorkoutResult makeWorkoutResult() {
+  Future<WorkoutResult> makeWorkoutResult() async{
     return WorkoutResult(
-        user: 'user1',
-        uid: "1",
-        workoutName: 'workout',
-        count: 0,
-        feedbackCounts: [0],
-        score: [0]);
+      user: 'user1',
+      uid: "1",
+      workoutName: 'workout',
+      count: 0,
+      feedbackCounts: [0],
+      timestamp: DateTime.now(), // 현재 시간 추가
+    );
   }
 
   void stopAnalysing() {

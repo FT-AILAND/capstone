@@ -24,6 +24,7 @@ class MorePage extends StatelessWidget {
             color: Colors.white,
             fontWeight: FontWeight.w900,
           )),
+        centerTitle: true,
         backgroundColor: aitNavy,
         elevation: 0,
       ),

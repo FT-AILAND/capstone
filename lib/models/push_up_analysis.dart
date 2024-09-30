@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'dart:convert';
 
 // 파이어베이스
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import '/utils/function_utils.dart';
 import '/googleTTS/voice.dart';
@@ -213,29 +211,6 @@ class PushUpAnalysis implements WorkoutAnalysis {
     }
   }
 
-  List<int> workoutToScore() {
-    List<int> score = [];
-    int n = _count;
-    for (int i = 0; i < n; i++) {
-      //_e는 pushups에 담겨있는 각각의 element
-
-      int isElbowUp = 1 - _feedBack['not_elbow_up']![i];
-      int isElbowDown = 1 - _feedBack['not_elbow_down']![i];
-      int isHipGood =
-          (_feedBack['is_hip_up']![i] == 0 && _feedBack['is_hip_down']![i] == 0)
-              ? 1
-              : 0;
-      int isKneeGood = 1 - _feedBack['is_knee_down']![i];
-      int isSpeedGood = 1 - _feedBack['is_speed_fast']![i];
-      score.add(isElbowUp * 25 +
-          isElbowDown * 30 +
-          isHipGood * 30 +
-          isKneeGood * 8 +
-          isSpeedGood * 7);
-    }
-    return score;
-  }
-
   @override
   void startDetecting() {
     _detecting = true;
@@ -243,7 +218,7 @@ class PushUpAnalysis implements WorkoutAnalysis {
 
   Future<void> startDetectingDelayed() async {
     speaker.sayStartDelayed();
-    await Future.delayed(const Duration(seconds: 8), () {
+    await Future.delayed(const Duration(seconds: 5), () {
       startDetecting();
     });
   }
@@ -263,93 +238,63 @@ class PushUpAnalysis implements WorkoutAnalysis {
     });
   }
 
-  WorkoutResult makeWorkoutResult() {
-    CollectionReference user_file =
-        FirebaseFirestore.instance.collection('user_file');
-    var currentUser = FirebaseAuth.instance.currentUser;
-    String userUid = currentUser!.uid;
+  Future<WorkoutResult> makeWorkoutResult() async {
 
+    User? user = FirebaseAuth.instance.currentUser;
+    String userUid = user!.uid;
+
+    // 사용자의 nickname을 가져옵니다.
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(user.uid).get();
+    String nickname = userDoc.get('nickname') as String;
+
+    // 피드백 합을 저장할 리스트 선언
     List<int> feedbackCounts = <int>[]; // sum of feedback which value is 1
+    // 맵의 모든 키를 가져와서 반복문을 실행
     for (String key in _feedBack.keys.toList()) {
       int tmp = 0;
+      // 각 키에 해당하는 피드백 리스트의 값을 반복문을 통해 하나씩 가져와서 더함
       for (int i = 0; i < _count; i++) {
         tmp += _feedBack[key]![i];
       }
-      feedbackCounts.add(tmp);
+      feedbackCounts.add(tmp); // feedback_counts 리스트에 추가
     }
+
     WorkoutResult workoutResult = WorkoutResult(
-        user: '00', // firebase로 구현
-        uid: userUid, // firebase로 구현
-        workoutName: 'push_up',
-        count: _count,
-        score: workoutToScore(),
-        feedbackCounts: feedbackCounts);
+      user: nickname, // firebase로 구현
+      uid: userUid, // firebase로 구현
+      workoutName: 'push_up',
+      count: _count,
+      feedbackCounts: feedbackCounts,
+      timestamp: DateTime.now(),
+    );
+
     return workoutResult;
   }
 
   void saveWorkoutResult() async {
-    WorkoutResult workoutResult = makeWorkoutResult();
+    WorkoutResult workoutResult = await makeWorkoutResult();
     String json = jsonEncode(workoutResult);
+
+    // 콘솔 확인 - 생성되는 json 객체 확인
     print(json);
 
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    CollectionReference exerciseDB =
-        FirebaseFirestore.instance.collection('exercise_DB');
+    // WidgetsFlutterBinding.ensureInitialized();
+    // await Firebase.initializeApp();
 
+    // 파이어베이스에서 exercise_DB 컬렉션 참조
+    CollectionReference exerciseDB = FirebaseFirestore.instance.collection('exercise_DB');
+
+    // 파이어베이스에 운동데이터 저장하는 함수
     Future<void> exercisestart() {
-      // Call the user's CollectionReference to add a new user
       print("streamstart");
-      return exerciseDB
-          .doc()
-          .set(workoutResult.toJson())
-          .then((value) => print("json added"))
-          .catchError((error) => print("Failed to add json: $error"));
+      // Firestore에 새로운 문서를 추가하고, 운동 결과 데이터를 JSON 형식으로 저장합니다.
+      // doc()을 호출하면 Firestore가 자동으로 문서 ID를 생성해 줍니다.
+      return exerciseDB.doc().set(workoutResult.toJson())
+          .then((value) => print("json added")) // 저장 성공 시 콘솔에 성공 메시지를 출력
+          .catchError((error) => print("Failed to add json: $error")); // 저장 실패 시 오류 메시지를 출력
     }
-
-    WidgetsFlutterBinding.ensureInitialized();
-    Firebase.initializeApp();
-
-    var currentUser = FirebaseAuth.instance.currentUser;
-    String uid_name = currentUser!.uid;
-    int new_pushup = workoutResult.toJson()['score'];
-    print(uid_name);
-
-    // 안 쓸거라 주석처리
-    // CollectionReference leaderboard =
-    //     FirebaseFirestore.instance.collection('leaderboard_DB');
-
-    // var docSnapshot = await leaderboard.doc(uid_name).get();
-    // Map<String, dynamic>? data = docSnapshot.data() as Map<String, dynamic>?;
-    // int old_pushup = data!['push_up'];
-    // int old_score = data['score'];
-
-    // if (new_pushup > old_pushup) {
-    //   int new_score = new_pushup - old_pushup + old_score;
-    //   leaderboard
-    //       .doc(uid_name)
-    //       .update({'push_up': new_pushup, 'score': new_score});
-    // }
-
-    exercisestart();
+    exercisestart(); // 함수 실행
 
     print("streamend");
-    // CollectionReference users = FirebaseFirestore.instance.collection('users');
-    // firebase로 workoutResult 서버로 보내기 구현
-
-    // JsonStore jsonStore = JsonStore();
-    // // store json
-    // await jsonStore.setItem(
-    //   'workout_result_${workoutResult.id}',
-    //   workoutResult.toJson()
-    // );
-    // // increment analysis counter value
-    // Map<String, dynamic>? jsonCounter = await jsonStore.getItem('analysis_counter');
-    // AnalysisCounter analysisCounter = jsonCounter != null ? AnalysisCounter.fromJson(jsonCounter) : AnalysisCounter(value: 0);
-    // analysisCounter.value++;
-    // await jsonStore.setItem(
-    //   'analysis_counter',
-    //   analysisCounter.toJson()
-    // );
   }
 }

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'dart:convert';
 
 class WorkoutResult {
   final String? uid;
@@ -7,29 +5,37 @@ class WorkoutResult {
   final String? workoutName; // only the strings push_up, pull_up, or squat is available
   final int? count;
   final List<int>? feedbackCounts;
-  final List<int>? score;
+  final DateTime? timestamp; // 타임스탬프 필드 추가
   /*
   feedbackCounts: (index)
     push_up:
 
   */ 
 
-  WorkoutResult(
-      {this.uid,
+  WorkoutResult({
+      this.uid,
       this.user,
       this.workoutName,
       this.count,
       this.feedbackCounts,
-      this.score});
+      this.timestamp,
+      });
 
   factory WorkoutResult.fromJson(Map<String, dynamic> json) {
+    // // 피드백 카운트 변환 처리
+    // List<int>? feedbackCounts;
+    // if (json['feedback_counts'] != null) {
+    //   feedbackCounts = List<int>.from(json['feedback_counts'].map((item) => item as int));
+    // }
+
     return WorkoutResult(
         uid: json['uid'],
         user: json['user'],
-        workoutName: json['feedback_name'],
+        workoutName: json['workout_name'] as String?,
         count: json['count'],
         feedbackCounts: List<int>.from(json['feedback_counts']),
-        score: List<int>.from(json['score']));
+        timestamp: DateTime.parse(json['timestamp']) // 타임스탬프 파싱 추가
+    ); 
   }
 
   Map<String, dynamic> toJson() => {
@@ -38,14 +44,6 @@ class WorkoutResult {
         'workout_name': workoutName,
         'count': count,
         'feedback_counts': feedbackCounts,
-        'score': score
+        'timestamp': timestamp?.toIso8601String() // 타임스탬프 추가
   };
-
-  int sumOfScore(){
-    int sum = 0;
-    for(int i=0; i<score!.length; i++){
-      sum += score![i];
-    }
-    return sum;
-  }
 }
