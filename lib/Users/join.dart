@@ -1,4 +1,5 @@
 // 패키지
+import 'package:ait_project/utils/textform_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -53,7 +54,24 @@ class JoinPageState extends State<JoinPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: GestureDetector(
+      appBar: AppBar(
+        backgroundColor: aitNavy,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          '회원가입',
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+            fontSize: 25,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
@@ -69,46 +87,27 @@ class JoinPageState extends State<JoinPage> {
                       autovalidateMode: _autovalidateMode,  // 처음엔 disabled
                       onChanged: _updateFormValidity,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10,),
                         child: Column(
                           children: [
-                            SizedBox(height: mediaHeight(context, 0.03)),
                         
                             // 타이틀
                             Center(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    // [텍스트] 회원가입
-                                    const Text(
-                                      '회원가입',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                        fontSize: 25,
-                                      ),
-                                    ),
-
-                                    // [스페이스]
-                                    const SizedBox(height: 10),
-
-                                    // [상태바]
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        LinearPercentIndicator(
-                                          width: 150,
-                                          animation: true,
-                                          animationDuration: 500,
-                                          lineHeight: 5,
-                                          percent: 0.5,
-                                          backgroundColor: Colors.grey,
-                                          progressColor: aitGreen,
-                                          barRadius: const Radius.circular(100),
-                                        ),
-                                      ],
-                                    ),
-                                  ]),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  LinearPercentIndicator(
+                                    width: 150,
+                                    animation: true,
+                                    animationDuration: 500,
+                                    lineHeight: 5,
+                                    percent: 0.5,
+                                    backgroundColor: Colors.grey,
+                                    progressColor: aitGreen,
+                                    barRadius: const Radius.circular(100),
+                                  ),
+                                ],
+                              ),
                             ),
                         
                             const SizedBox(height: 30),
@@ -256,91 +255,6 @@ class JoinPageState extends State<JoinPage> {
             ),
           )),
     ));
-  }
-}
-
-// 커스텀 텍스트 필드 위젯
-class CustomTextField extends StatelessWidget {
-  final String label;
-  final bool obscureText;
-  final void Function(String) onChanged;
-  final void Function(String?) onSaved;
-  final String? Function(String?) validator;
-  final AutovalidateMode autovalidateMode;
-
-  const CustomTextField({
-    super.key,
-    required this.label,
-    this.obscureText = false,
-    required this.onChanged,
-    required this.onSaved,
-    required this.validator,
-    this.autovalidateMode = AutovalidateMode.disabled,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top:10, bottom:10),
-      child: Column(
-        children: [
-          // [텍스트] 라벨
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-          // [텍스트필드] 입력 필드
-          Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 20),
-            child: SizedBox(
-              child: TextFormField(
-                autovalidateMode: autovalidateMode,
-                obscureText: obscureText,
-                onChanged: onChanged,
-                onSaved: onSaved,
-                validator: validator,
-                decoration: InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: Colors.white),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: aitGreen),
-                  ),
-                  errorBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: Colors.white),
-                  ),
-                  focusedErrorBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 3, color: aitGreen),
-                  ),
-                  errorStyle: TextStyle(
-                    color: aitGreen,
-                    fontSize: 15,
-                    height: 2,
-                  ),
-                  contentPadding: const EdgeInsets.only(bottom: 10),
-                ),
-                style: const TextStyle(
-                  decorationThickness: 0,
-                  color: Colors.white,
-                  fontSize: 20, 
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

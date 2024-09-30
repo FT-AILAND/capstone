@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:ait_project/main.dart';
 
+import '../../utils/textform_field.dart';
+
 class EditBody extends StatefulWidget {
   const EditBody({super.key});
 
@@ -195,97 +197,6 @@ class _EditBodyState extends State<EditBody> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class CustomTextField extends StatelessWidget {
-  final String label;
-  final String? initialValue;
-  final bool obscureText;
-  final void Function(String) onChanged;
-  final void Function(String?) onSaved;
-  final String? Function(String?) validator;
-  final List<TextInputFormatter>? inputFormatters;
-  final AutovalidateMode autovalidateMode;
-  final TextEditingController? controller;
-
-  const CustomTextField({
-    Key? key,
-    required this.label,
-    this.initialValue,
-    this.obscureText = false,
-    required this.onChanged,
-    required this.onSaved,
-    required this.validator,
-    this.inputFormatters,
-    this.autovalidateMode = AutovalidateMode.disabled,
-    this.controller,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top:10, bottom:10),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 20),
-            child: SizedBox(
-              child: TextFormField(
-                controller: controller,
-                initialValue: controller == null ? initialValue : null, // 컨트롤러가 없을 때만 initialValue 사
-                autovalidateMode: autovalidateMode,
-                obscureText: obscureText,
-                onChanged: onChanged,
-                onSaved: onSaved,
-                validator: validator,
-                inputFormatters: inputFormatters,
-                decoration: InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: aitGreen),
-                  ),
-                  errorBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white),
-                  ),
-                  focusedErrorBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: aitGreen),
-                  ),
-                  errorStyle: TextStyle(
-                    color: aitGreen,
-                    fontSize: 15,
-                    height: 2,
-                  ),
-                  contentPadding: const EdgeInsets.only(bottom: 10),
-                ),
-                style: const TextStyle(
-                  decorationThickness: 0,
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
