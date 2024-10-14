@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "665913507149",
+    "project_id": "ait-base",
+    "storage_bucket": "ait-base.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:665913507149:android:046c88faf5b1fabfd38b04",
+        "android_client_info": {
+          "package_name": "com.example.ait_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOeosLZjXGIpDY4w4OlfYvo2_TN3Pe_3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
