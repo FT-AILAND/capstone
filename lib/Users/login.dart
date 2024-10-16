@@ -57,7 +57,8 @@ class LogInPageState extends State<LogInPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -73,11 +74,11 @@ class LogInPageState extends State<LogInPage> {
                               ),
                             ),
                             const SizedBox(height: 30),
-                            
+
                             // 이메일
                             CustomTextField(
                               label: '이메일',
-                              autovalidateMode: _autovalidateMode, 
+                              autovalidateMode: _autovalidateMode,
                               onChanged: (value) {
                                 email = value;
                               },
@@ -88,11 +89,11 @@ class LogInPageState extends State<LogInPage> {
                                 return null;
                               },
                             ),
-                            
+
                             // 비밀번호
                             CustomTextField(
                               label: '비밀번호',
-                              autovalidateMode: _autovalidateMode, 
+                              autovalidateMode: _autovalidateMode,
                               obscureText: true,
                               onChanged: (value) {
                                 password = value;
@@ -164,7 +165,6 @@ class LogInPageState extends State<LogInPage> {
                   ),
                 ),
               ),
-              
               SizedBox(height: mediaHeight(context, 0.15)),
             ],
           ),

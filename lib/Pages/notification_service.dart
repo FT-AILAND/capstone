@@ -86,7 +86,7 @@ class NotificationService {
     await flutterLocalNotificationsPlugin
         .zonedSchedule(
       notificationId,
-      '운동 알림',
+      'AIT',
       '운동 시간입니다! 운동을 시작하세요!',
 
       _nextInstanceOfTime(scheduledTime),

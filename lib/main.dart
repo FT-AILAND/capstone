@@ -164,7 +164,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-
                 // 로그인 버튼
                 const SizedBox(height: 100),
                 SizedBox(

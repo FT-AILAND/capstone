@@ -48,18 +48,13 @@ class _BulidBottomAppBarState extends State<BulidBottomAppBar>
           scaffoldBackgroundColor: const Color(0xFF3D3F5A), useMaterial3: true),
       home: Scaffold(
         body: TabBarView(
-          children: [
-            workPage(),
-            RecordPage(),
-            goalPage(),
-            MorePage()
-          ],
+          children: [workPage(), RecordPage(), goalPage(), MorePage()],
           controller: _controller,
         ),
         bottomNavigationBar: SafeArea(
           child: Container(
             decoration: BoxDecoration(
-              color: aitNavy, 
+              color: aitNavy,
               // border: Border(
               //   top: BorderSide(
               //       color: aitGrey.withOpacity(0.2),
@@ -84,10 +79,13 @@ class _BulidBottomAppBarState extends State<BulidBottomAppBar>
                 unselectedLabelColor: Colors.grey,
                 labelColor: Colors.white,
                 unselectedLabelStyle: const TextStyle(
-                    color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+                    color: Colors.grey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold),
                 labelStyle: const TextStyle(
-                    color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
-              
+                    color: Colors.black,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold),
                 tabs: [
                   Tab(
                       icon: Icon(

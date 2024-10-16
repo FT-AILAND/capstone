@@ -58,7 +58,9 @@ class _GoalSettingPageState extends State<GoalSettingPage> {
                       setState(() {
                         _updatedRepetitions[idx] = tempRepetition;
                       });
+
                       Navigator.of(context).pop();
+                      _saveAndReturn();
                     },
                   ),
                 ],
@@ -106,12 +108,12 @@ class _GoalSettingPageState extends State<GoalSettingPage> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check, color: Colors.white),
-            onPressed: _saveAndReturn,
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.check, color: Colors.white),
+        //     onPressed: _saveAndReturn,
+        //   ),
+        // ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -131,10 +133,9 @@ class _GoalSettingPageState extends State<GoalSettingPage> {
                         child: Text(
                           '운동 목표 설정',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 16,
-                          ),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                       ),
                     ),
@@ -143,7 +144,7 @@ class _GoalSettingPageState extends State<GoalSettingPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0),
+              padding: const EdgeInsets.only(left: 5, right: 5, top: 15.0),
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF595B77).withOpacity(0.5),

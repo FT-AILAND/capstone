@@ -360,19 +360,32 @@ class _goalPageState extends State<goalPage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: Text(
-                          '일일 목표 달성률',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 16,
-                          ),
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              '일일 목표 달성률',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 20),
+                                child: Divider(
+                                  color: Colors.white60,
+                                  thickness: 1,
+                                  height: 20,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: SizedBox(
                         width: 400,
                         height:

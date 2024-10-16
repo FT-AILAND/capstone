@@ -1,6 +1,5 @@
 // 카메라 화면 UI + 카메라에서 이미지 받아와서 포즈 추출기에 전달 + 스켈레톤 그려주기 + 줌인 줌아웃 기능 + 전면 후면 카메라 전환 기능
 // ignore_for_file: unused_field
-
 import 'dart:io';
 
 import 'package:ait_project/models/workout_result.dart';
@@ -38,7 +37,6 @@ class CameraView extends StatefulWidget {
   }) : super(key: key);
 
   final String title;
-
   // 스켈레톤 그려주는 객체
   final CustomPaint? customPaint;
   // 이미지 받을 때마다 실행하는 함수
@@ -244,15 +242,19 @@ class _CameraViewState extends State<CameraView> {
           ),
           // 추출된 스켈레톤 그리기
           if (widget.customPaint != null) widget.customPaint!,
+          // Positioned.fill(
+          //   child: Align(
+          //     alignment: Alignment.topCenter,
+          //     child: _showWorkoutProcess(),
+          //   ),
+          // ),
           Positioned.fill(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: _showWorkoutProcess(),
-            ),
-          ),
-          Positioned.fill(
-              child:
-                  Align(alignment: Alignment.topLeft, child: _showAngleText())),
+              child: Align(
+            alignment: Alignment.topLeft,
+            child:
+                // _showAngleText()
+                _buildTextWithBackground("${widget.workoutAnalysis.count}"),
+          )),
           Positioned.fill(
               child: Align(
                   alignment: Alignment.topRight, child: _showFeedbackText()))
@@ -364,49 +366,49 @@ class _CameraViewState extends State<CameraView> {
     widget.onImage(inputImage);
   }
 
-  Widget _showWorkoutProcess() {
-    String processingString;
-    if (widget.workoutAnalysis.end) {
-      processingString = '운동분석종료';
-    } else {
-      if (widget.workoutAnalysis.detecting) {
-        processingString = '운동분석';
-      } else {
-        processingString = '운동분석대기';
-      }
-    }
+  // Widget _showWorkoutProcess() {
+  //   String processingString;
+  //   if (widget.workoutAnalysis.end) {
+  //     processingString = '운동분석종료';
+  //   } else {
+  //     if (widget.workoutAnalysis.detecting) {
+  //       processingString = '운동분석';
+  //     } else {
+  //       processingString = '운동분석대기';
+  //     }
+  //   }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        _buildTextWithBackground(processingString),
-        _buildTextWithBackground(
-            "${widget.title == 'Pull Up' ? '풀업' : widget.title == 'Squat' ? '스쿼트' : widget.title == 'Push Up' ? '푸시업' : widget.title} 개수: ${widget.workoutAnalysis.count}"),
-      ],
-    );
-  }
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.center,
+  //     children: [
+  //       _buildTextWithBackground(processingString),
+  //       _buildTextWithBackground(
+  //           "${widget.title == 'Pull Up' ? '풀업' : widget.title == 'Squat' ? '스쿼트' : widget.title == 'Push Up' ? '푸시업' : widget.title} 개수: ${widget.workoutAnalysis.count}"),
+  //     ],
+  //   );
+  // }
 
-  Widget _showAngleText() {
-    List<Widget> li = <Widget>[
-      _buildTextWithBackground("운동상태: ${widget.workoutAnalysis.state}"),
-    ];
-    for (String key in widget.workoutAnalysis.tempAngleDict.keys.toList()) {
-      try {
-        if (widget.workoutAnalysis.tempAngleDict[key]?.isNotEmpty) {
-          double angle = widget.workoutAnalysis.tempAngleDict[key]?.last;
-          li.add(_buildTextWithBackground(
-            "$key : ${double.parse((angle.toStringAsFixed(1)))}",
-          ));
-        }
-      } catch (e) {
-        print("각도 텍스트화 에러. 에러코드 : $e");
-      }
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: li,
-    );
-  }
+  // Widget _showAngleText() {
+  //   List<Widget> li = <Widget>[
+  //     _buildTextWithBackground("운동상태: ${widget.workoutAnalysis.state}"),
+  //   ];
+  //   for (String key in widget.workoutAnalysis.tempAngleDict.keys.toList()) {
+  //     try {
+  //       if (widget.workoutAnalysis.tempAngleDict[key]?.isNotEmpty) {
+  //         double angle = widget.workoutAnalysis.tempAngleDict[key]?.last;
+  //         li.add(_buildTextWithBackground(
+  //           "$key : ${double.parse((angle.toStringAsFixed(1)))}",
+  //         ));
+  //       }
+  //     } catch (e) {
+  //       print("각도 텍스트화 에러. 에러코드 : $e");
+  //     }
+  //   }
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: li,
+  //   );
+  // }
 
   final Map<String, String> feedbackTranslation = {
     'not_elbow_up': '이완 부족',
@@ -459,21 +461,24 @@ class _CameraViewState extends State<CameraView> {
 
 // Helper method to build text with a background for better readability
   Widget _buildTextWithBackground(String text,
-      {Color textColor = Colors.white, double fontSize = 11}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5.0),
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      decoration: BoxDecoration(
-        color:
-            Colors.black.withOpacity(0.6), // Semi-transparent black background
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: textColor,
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
+      {Color textColor = Colors.white, double fontSize = 20}) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5.0),
+        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+        decoration: BoxDecoration(
+          color: Colors.black
+              .withOpacity(0.3), // Semi-transparent black background
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: textColor,
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

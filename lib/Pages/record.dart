@@ -59,7 +59,7 @@ class _RecordPageState extends State<RecordPage> {
         children: [
           // 정렬 옵션 위젯
           SizedBox(
-            height: 30,  // 높이를 약간 늘렸습니다
+            height: 30, // 높이를 약간 늘렸습니다
             child: Padding(
               padding: const EdgeInsets.only(right: 10),
               child: GestureDetector(
@@ -81,7 +81,9 @@ class _RecordPageState extends State<RecordPage> {
                     Align(
                       alignment: Alignment.center,
                       child: Icon(
-                        _isDescending ? Icons.arrow_downward : Icons.arrow_upward,
+                        _isDescending
+                            ? Icons.arrow_downward
+                            : Icons.arrow_upward,
                         color: Colors.white,
                       ),
                     ),
@@ -90,7 +92,7 @@ class _RecordPageState extends State<RecordPage> {
               ),
             ),
           ),
-          
+
           // 기록 내용
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -106,15 +108,13 @@ class _RecordPageState extends State<RecordPage> {
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
-                    child: Text(
-                      '기록이 없습니다.', 
-                      style: TextStyle(
-                        fontSize: 25, 
-                        fontWeight: FontWeight.bold, 
-                        color: Colors.white
-                      ),
-                    )
-                  );
+                      child: Text(
+                    '기록이 없습니다.',
+                    style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ));
                 }
 
                 return ListView.builder(
@@ -123,7 +123,8 @@ class _RecordPageState extends State<RecordPage> {
                     var doc = snapshot.data!.docs[index];
                     var data = doc.data() as Map<String, dynamic>;
 
-                    String workoutName = data['workout_name'] as String? ?? '알 수 없는 운동';
+                    String workoutName =
+                        data['workout_name'] as String? ?? '알 수 없는 운동';
                     DateTime? timestamp = _safeGetDateTime(data, 'timestamp');
                     String formattedTimestamp = timestamp != null
                         ? DateFormat('yyyy-MM-dd HH:mm').format(timestamp)
@@ -132,88 +133,95 @@ class _RecordPageState extends State<RecordPage> {
                     String displayName = _getDisplayName(workoutName);
 
                     return GestureDetector(
-                      onTap: () {
-                        WorkoutResult workoutResult = WorkoutResult.fromJson(data);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WorkoutResultPage(workoutResult: workoutResult),
-                          ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 15, right: 15),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF595B77).withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 25, right: 10, top: 15, bottom: 15),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(right: 10),
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(8.0),
-                                              child: Image.asset(
-                                                _getWorkoutImage(workoutName),
-                                                width: 30,
-                                                height: 30,
-                                                fit: BoxFit.cover,
+                        onTap: () {
+                          WorkoutResult workoutResult =
+                              WorkoutResult.fromJson(data);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WorkoutResultPage(
+                                  workoutResult: workoutResult),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 20, left: 15, right: 15),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF595B77).withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25, right: 10, top: 15, bottom: 15),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 10),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                                child: Image.asset(
+                                                  _getWorkoutImage(workoutName),
+                                                  width: 30,
+                                                  height: 30,
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          Text(
-                                            displayName,
+                                            Text(
+                                              displayName,
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w900,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 3, bottom: 5),
+                                          child: Text(
+                                            formattedTimestamp,
                                             style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w900,
-                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.grey,
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 3, bottom: 5),
-                                        child: Text(
-                                          formattedTimestamp,
+                                        ),
+                                        Text(
+                                          '${data['count']} 회',
                                           style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w900,
+                                            color: Color(0XFF9FA2CE),
                                           ),
                                         ),
-                                      ),
-                                      Text(
-                                        '${data['count']} 회',
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w900,
-                                          color: Color(0XFF9FA2CE),
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const Icon(
-                                  Icons.chevron_right,
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                              ],
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    );
+                        ));
                   },
                 );
               },
