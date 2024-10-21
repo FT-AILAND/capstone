@@ -418,8 +418,9 @@ class _goalPageState extends State<goalPage> {
                                     : currentStepsList[idx];
 
                             // Percentage calculation
-                            double percentage =
-                                (currentStep / totalStepsList[idx]) * 100;
+                            double percentage = totalStepsList[idx] > 0
+                                ? (currentStep / totalStepsList[idx]) * 100
+                                : 0;
 
                             // Define different gradient colors for each exercise
                             List<LinearGradient> selectedGradients = [
@@ -427,8 +428,6 @@ class _goalPageState extends State<goalPage> {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  // Colors.yellowAccent, // Gradient for Push_up
-                                  // Colors.deepOrange,
                                   Colors
                                       .lightBlueAccent, // Gradient for Pull_up
                                   Colors.blue,
@@ -439,7 +438,7 @@ class _goalPageState extends State<goalPage> {
                                 end: Alignment.bottomRight,
                                 colors: [
                                   Colors.yellowAccent, // Gradient for Push_up
-                                  Colors.yellow
+                                  Colors.yellow,
                                 ],
                               ),
                               const LinearGradient(
@@ -473,53 +472,68 @@ class _goalPageState extends State<goalPage> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    Text(
-                                      '$currentStep / ${totalStepsList[idx]}', // Display current progress / goal
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    totalStepsList[idx] > 0
+                                        ? Text(
+                                            '$currentStep / ${totalStepsList[idx]}', // Display current progress / goal
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          )
+                                        : const Text(
+                                            '목표 설정을 해주세요', // Display if goal is not set
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                   ],
                                 ),
                                 const SizedBox(height: 10.0),
-                                Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: StepProgressIndicator(
-                                        totalSteps: totalStepsList[
-                                            idx], // Total goal count
-                                        currentStep:
-                                            currentStep, // Current progress
-                                        size: 20,
-                                        padding: 0,
-                                        selectedColor: Colors.yellow,
-                                        unselectedColor: unselectedColors[
-                                            idx], // Apply unselected color based on index
-                                        selectedGradientColor: selectedGradients[
-                                            idx], // Apply gradient based on index
-                                        unselectedGradientColor: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Color(0xFF595B77).withOpacity(0.5),
-                                            Color(0xFF595B77),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    // Center the percentage text
-                                    Text(
-                                      '${percentage.toStringAsFixed(0)}%', // Display percentage with no decimals
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                totalStepsList[idx] > 0
+                                    ? Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: StepProgressIndicator(
+                                              totalSteps: totalStepsList[
+                                                  idx], // Total goal count
+                                              currentStep:
+                                                  currentStep, // Current progress
+                                              size: 20,
+                                              padding: 0,
+                                              selectedColor: Colors.yellow,
+                                              unselectedColor: unselectedColors[
+                                                  idx], // Unselected color based on index
+                                              selectedGradientColor:
+                                                  selectedGradients[
+                                                      idx], // Gradient based on index
+                                              unselectedGradientColor:
+                                                  LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  Color(0xFF595B77)
+                                                      .withOpacity(0.5),
+                                                  Color(0xFF595B77),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          // Center the percentage text
+                                          Text(
+                                            '${percentage.toStringAsFixed(0)}%', // Display percentage with no decimals
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const SizedBox
+                                        .shrink(), // Hide progress bar if no goal is set
                                 const SizedBox(
                                     height:
                                         10), // Padding between progress bars
@@ -528,7 +542,7 @@ class _goalPageState extends State<goalPage> {
                           },
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
