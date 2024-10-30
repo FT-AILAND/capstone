@@ -66,10 +66,10 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                     autovalidateMode: _autovalidateMode,
                     onChanged: _updateFormValidity,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 10),
                       child: Column(
                         children: [
-                          
                           // 타이틀
                           Center(
                             child: Row(
@@ -88,13 +88,13 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                               ],
                             ),
                           ),
-                          
+
                           const SizedBox(height: 50),
-                          
+
                           // 닉네임
                           CustomTextField(
                             label: '닉네임',
-                            autovalidateMode: _autovalidateMode, 
+                            autovalidateMode: _autovalidateMode,
                             onChanged: (value) {
                               nickname = value;
                             },
@@ -108,11 +108,11 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                               return null;
                             },
                           ),
-                          
+
                           // 신장
                           CustomTextField(
                             label: '신장 (cm)',
-                            autovalidateMode: _autovalidateMode, 
+                            autovalidateMode: _autovalidateMode,
                             onChanged: (value) {
                               height = value;
                             },
@@ -129,11 +129,11 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                               FilteringTextInputFormatter.digitsOnly,
                             ],
                           ),
-                          
+
                           // 체중
                           CustomTextField(
                             label: '체중 (kg)',
-                            autovalidateMode: _autovalidateMode, 
+                            autovalidateMode: _autovalidateMode,
                             onChanged: (value) {
                               weight = value;
                             },
@@ -160,24 +160,25 @@ class JoinBodyPageState extends State<JoinBodyPage> {
               // 회원가입 버튼
               SignUpButton(
                 label: '회원가입',
-                onPressed: () async { 
-
+                onPressed: () async {
                   setState(() {
                     // 제출 버튼을 누르면 autovalidateMode를 always로 변경
                     _autovalidateMode = AutovalidateMode.always;
                   });
-                  
+
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    
-                     // 이전 페이지에서 받은 데이터에 추가 데이터를 병합
+
+                    // 이전 페이지에서 받은 데이터에 추가 데이터를 병합
                     widget.userData.nickname = nickname;
                     widget.userData.height = height;
                     widget.userData.weight = weight;
 
-                    try{
+                    try {
                       // Firebase Authentication에 회원가입 처리
-                      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      UserCredential userCredential = await FirebaseAuth
+                          .instance
+                          .createUserWithEmailAndPassword(
                         email: widget.userData.email,
                         password: widget.userData.password,
                       );
@@ -196,7 +197,7 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                         print("사용자 정보가 Firestore에 성공적으로 저장되었습니다.");
                       }).catchError((error) {
                         print("Firestore 저장 중 오류 발생: $error");
-                        throw error;  // 오류를 다시 던져서 catch 블록에서 처리하도록 합니다.
+                        throw error; // 오류를 다시 던져서 catch 블록에서 처리하도록 합니다.
                       });
 
                       // 랜덤 문서 id로 Goal테이블에 문서 추가
@@ -209,22 +210,26 @@ class JoinBodyPageState extends State<JoinBodyPage> {
 
                       // child 테이블? 만드는 방법
                       // 현재 사용자의 uid를 문서id로 사용하는 Goal 테이블
-                      FirebaseFirestore.instance.collection('Goal').doc(uid).set({
-                        'uid' : uid,
+                      FirebaseFirestore.instance
+                          .collection('Goal')
+                          .doc(uid)
+                          .set({
+                        'uid': uid,
                         'push_up': 0,
                         'squat': 0,
                         'pull_up': 0,
                       });
-                      
+
                       //홈으로 이동
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (BuildContext context) => BulidBottomAppBar(index: 0),
-                        ), 
+                          builder: (BuildContext context) =>
+                              BulidBottomAppBar(index: 0),
+                        ),
                         (route) => false,
-                      );    
-                    }on FirebaseAuthException catch (e) {
+                      );
+                    } on FirebaseAuthException catch (e) {
                       // FirebaseAuthException을 통해 발생할 수 있는 예외 처리
                       if (e.code == 'weak-password') {
                         flutterToast('패스워드 보안이 취약합니다.');
@@ -236,14 +241,11 @@ class JoinBodyPageState extends State<JoinBodyPage> {
                     } catch (e) {
                       print('오류: $e');
                     }
-
-
-
                   }
                 },
                 backgroundColor: _isFormValid ? aitGreen : aitGrey,
               ),
-              
+
               SizedBox(height: mediaHeight(context, 0.03)),
             ],
           ),

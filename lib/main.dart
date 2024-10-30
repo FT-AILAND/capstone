@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
+import 'package:ait_project/Pages/notification_service.dart';
 
 // 파이어베이스 패키지
 import 'package:ait_project/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-// 페이지asd
+// 페이지
 import 'Users/join.dart';
 import 'Users/login.dart';
 import 'Navigator/bottomAppBar.dart'; // BulidBottomAppBar 위젯을 임포트
+
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 double appBarHeight = 40;
 double mediaHeight(BuildContext context, double scale) =>
@@ -39,11 +45,43 @@ Future<void> initializeApp() async {
 Future<void> main() async {
   // 파이어베이스 초기화 함수
   await initializeApp();
+  _initNotiSetting();
 
   // 카메라
   cameras = await availableCameras();
+  // 앱 실행 전에 NotificationService 인스턴스 생성
+  final notificationService = NotificationService();
+  // Flutter 엔진 초기화
+  WidgetsFlutterBinding.ensureInitialized();
+  // 로컬 푸시 알림 초기화
+  await notificationService.init();
 
+  WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones(); // Initialize timezone early
+  await NotificationService().init(); // Initialize the notification service
+
+  if (await Permission.scheduleExactAlarm.isDenied) {
+    await Permission.scheduleExactAlarm.request();
+  }
   runApp(const MyApp());
+}
+
+void _initNotiSetting() async {
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final initSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  // final initSettingsIOS = IOSInitializationSettings(
+  //   requestSoundPermission: false,
+  //   requestBadgePermission: false,
+  //   requestAlertPermission: false,
+  // );
+  final initSettings = InitializationSettings(
+    android: initSettingsAndroid,
+    // iOS: initSettingsIOS,
+  );
+  await flutterLocalNotificationsPlugin.initialize(
+    initSettings,
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -126,7 +164,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-
                 // 로그인 버튼
                 const SizedBox(height: 100),
                 SizedBox(
