@@ -56,7 +56,7 @@ class _goalPageState extends State<goalPage> {
         }
       }
     } catch (e) {
-      print("Error loading data: $e");
+      print("Error loading data: $e"); //뭐가 바껐나
       setState(() {
         _isLoading = false; // Stop showing spinner even if there's an error
       });
