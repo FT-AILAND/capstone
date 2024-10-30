@@ -12,7 +12,7 @@ class workPage extends StatefulWidget {
   State<workPage> createState() => _workPageState();
 }
 
-class _workPageState extends State<workPage> with TickerProviderStateMixin{ 
+class _workPageState extends State<workPage> with TickerProviderStateMixin {
   // muscleList에 전체 운동 데이터 추가
   List<Map<String, dynamic>> allExercises = [];
 
@@ -55,12 +55,12 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
                   child: Text(
                 "운동",
                 style: TextStyle(
-                  fontSize: 25, 
+                  fontSize: 25,
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
                 ),
               )),
-              bottom: TabBar(               
+              bottom: TabBar(
                 dividerColor: Colors.transparent,
                 indicator: BoxDecoration(
                   border: Border(
@@ -74,9 +74,13 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
                 unselectedLabelColor: Colors.grey,
                 labelColor: Colors.white,
                 unselectedLabelStyle: const TextStyle(
-                    color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+                    color: Colors.grey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold),
                 labelStyle: const TextStyle(
-                    color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
+                    color: Colors.black,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold),
                 tabs: const [
                   Tab(
                     child: Text(
@@ -124,37 +128,43 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
             body: TabBarView(
               children: [
                 _buildExerciseList(allExercises), // 전체 리스트
-                _buildExerciseList(chestExerciseList.entries.map((entry) => {
-                      'name': entry.key,
-                      'image': entry.value['image'],
-                      'nextPage': entry.value['nextPage'],
-                      'hashTag': entry.value['hashTag'],
-                    }).toList()), // Chest 리스트
-                _buildExerciseList(legsExerciseList.entries.map((entry) => {
-                      'name': entry.key,
-                      'image': entry.value['image'],
-                      'nextPage': entry.value['nextPage'],
-                      'hashTag': entry.value['hashTag'],
-                    }).toList()), // Legs 리스트
-                _buildExerciseList(pullUpExerciseList.entries.map((entry) => {
-                      'name': entry.key,
-                      'image': entry.value['image'],
-                      'nextPage': entry.value['nextPage'],
-                      'hashTag': entry.value['hashTag'],
-                    }).toList()), // Back 리스트
+                _buildExerciseList(chestExerciseList.entries
+                    .map((entry) => {
+                          'name': entry.key,
+                          'image': entry.value['image'],
+                          'nextPage': entry.value['nextPage'],
+                          'hashTag': entry.value['hashTag'],
+                        })
+                    .toList()), // Chest 리스트
+                _buildExerciseList(legsExerciseList.entries
+                    .map((entry) => {
+                          'name': entry.key,
+                          'image': entry.value['image'],
+                          'nextPage': entry.value['nextPage'],
+                          'hashTag': entry.value['hashTag'],
+                        })
+                    .toList()), // Legs 리스트
+                _buildExerciseList(pullUpExerciseList.entries
+                    .map((entry) => {
+                          'name': entry.key,
+                          'image': entry.value['image'],
+                          'nextPage': entry.value['nextPage'],
+                          'hashTag': entry.value['hashTag'],
+                        })
+                    .toList()), // Back 리스트
               ],
             )),
       ),
     );
   }
-  
+
   // 운동 리스트를 보여주는 위젯
   Widget _buildExerciseList(List<Map<String, dynamic>> exerciseList) {
     return ListView.builder(
       itemCount: exerciseList.length,
       itemBuilder: (context, index) {
         final exercise = exerciseList[index];
-        
+
         return GestureDetector(
           onTap: () {
             // Navigator.push(
@@ -162,10 +172,10 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
             //   MaterialPageRoute(builder: (context) => exercise['nextPage']),
             // );
             Get.to(exercise['nextPage']);
-            
           },
           child: Padding(
-            padding: const EdgeInsets.only(top: 20, left: 15, right: 15), // 컨테이너 외부 패딩
+            padding: const EdgeInsets.only(
+                top: 20, left: 15, right: 15), // 컨테이너 외부 패딩
             child: Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF595B77).withOpacity(0.5),
@@ -229,7 +239,8 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
                     // 오른쪽 상단 AI 표시
                     if (exercise['nextPage']?.isReadyForAI == true)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 0),
                         child: Text(
                           'AI',
                           style: TextStyle(
@@ -248,5 +259,4 @@ class _workPageState extends State<workPage> with TickerProviderStateMixin{
       },
     );
   }
-
 }

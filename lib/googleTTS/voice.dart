@@ -13,7 +13,7 @@ class Voice {
     tts.setQueueMode(1);
   }
 
-  void sayStartDelayed() async{
+  void sayStartDelayed() async {
     tts.speak('8초 후에 측정이 시작됩니다.');
   }
 
@@ -32,31 +32,31 @@ class Voice {
 
   void sayStretchElbow(int count) async {
     if (count % 2 == 0) {
-      tts.speak('팔을 펴세요');
+      tts.speak('팔을 더 쭉 펴세요');
     }
   }
 
   void sayBendElbow(int count) async {
     if (count % 2 == 0) {
-      tts.speak('팔을 굽히세요');
+      tts.speak('팔을 더 굽히세요');
     }
   }
 
   void sayStretchElbowAndShoulder(int count) async {
     if (count % 2 == 0) {
-      tts.speak('팔과 어깨를 펴세요');
+      tts.speak('팔과 어깨를 쭉 펴세요');
     }
   }
 
   void sayHipUp(int count) async {
     if (count % 2 == 0) {
-      tts.speak('골반을 올리세요');
+      tts.speak('골반을 들어 올리세요');
     }
   }
 
   void sayHipDown(int count) async {
     if (count % 2 == 0) {
-      tts.speak('골반을 내리세요');
+      tts.speak('골반을 끝까지 내리세요');
     }
   }
 
@@ -68,25 +68,25 @@ class Voice {
 
   void sayKneeUp(int count) async {
     if (count % 2 == 0) {
-      tts.speak('무릎을 올리세요');
+      tts.speak('무릎을 높이 올리세요');
     }
   }
 
   void sayStretchKnee(int count) async {
     if (count % 2 == 0) {
-      tts.speak('무릎을 펴세요');
+      tts.speak('무릎을 쭉 펴세요');
     }
   }
 
   void sayBendKnee(int count) async {
     if (count % 2 == 0) {
-      tts.speak('무릎을 굽히세요');
+      tts.speak('무릎을 더 굽히세요');
     }
   }
 
   void sayKneeOut(int count) async {
     if (count % 2 == 0) {
-      tts.speak('무릎이 앞으로 갔어요');
+      tts.speak('무릎이 너무 앞으로 갔어요');
     }
   }
 
