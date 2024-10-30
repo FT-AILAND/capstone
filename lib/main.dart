@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 
 // 파이어베이스 패키지
-import 'package:ait_project/firebase_options.dart'; 
-import 'package:firebase_core/firebase_core.dart'; 
+import 'package:ait_project/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// 페이지
+// 페이지asd
 import 'Users/join.dart';
 import 'Users/login.dart';
 import 'Navigator/bottomAppBar.dart'; // BulidBottomAppBar 위젯을 임포트
@@ -39,7 +39,7 @@ Future<void> initializeApp() async {
 Future<void> main() async {
   // 파이어베이스 초기화 함수
   await initializeApp();
-  
+
   // 카메라
   cameras = await availableCameras();
 
@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFF3D3F5A),
       ),
-      home: const Root(),  // Root 위젯을 home으로 설정
+      home: const Root(), // Root 위젯을 home으로 설정
     );
   }
 }
@@ -126,14 +126,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                
+
                 // 로그인 버튼
                 const SizedBox(height: 100),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: aitGreen, 
+                      backgroundColor: aitGreen,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -141,28 +141,27 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     onPressed: () {
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LogInPage())
-                      );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LogInPage()));
                     },
                     child: const Text(
-                      '로그인', 
+                      '로그인',
                       style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold
-                      ),
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                
+
                 // 회원가입 버튼
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: aitGrey, 
+                      backgroundColor: aitGrey,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -170,17 +169,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     onPressed: () {
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const JoinPage())
-                      );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const JoinPage()));
                     },
                     child: const Text(
-                      '회원가입', 
+                      '회원가입',
                       style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold
-                      ),
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
