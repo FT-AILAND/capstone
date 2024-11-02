@@ -259,104 +259,6 @@ class _goalPageState extends State<goalPage> {
                 child: Column(
                   children: [
                     SizedBox(height: 500, child: ExerciseCalendarWidget()),
-                    // const SizedBox(
-                    //   height: 30,
-                    //   child: Padding(
-                    //     padding: EdgeInsets.only(right: 10),
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.start,
-                    //       children: [
-                    //         Align(
-                    //           alignment: Alignment.center,
-                    //           child: Padding(
-                    //             padding: EdgeInsets.only(left: 10.0),
-                    //             child: Text(
-                    //               '일일 목표 개수',
-                    //               style: TextStyle(
-                    //                 color: Colors.white,
-                    //                 fontWeight: FontWeight.normal,
-                    //                 fontSize: 16,
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
-                    // Padding(
-                    //   padding: const EdgeInsets.all(10.0),
-                    //   child: Container(
-                    //     decoration: BoxDecoration(
-                    //       color: Color(0xFF595B77).withOpacity(0.5),
-                    //       borderRadius: BorderRadius.circular(15),
-                    //       boxShadow: const [
-                    //         BoxShadow(
-                    //           color: Color(0x595B77),
-                    //           spreadRadius: 2,
-                    //           blurRadius: 7.0,
-                    //           offset: Offset(2, 5),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //     child: SizedBox(
-                    //       width: 400,
-                    //       height:
-                    //           110, // Increased height to better fit the list items
-                    //       child: ListView.builder(
-                    //         itemCount: 3,
-                    //         itemBuilder: (BuildContext ctx, int idx) {
-                    //           // Korean exercise names
-                    //           List<String> exercises = [
-                    //             '푸쉬업', // Push_up -> 푸쉬업
-                    //             '턱걸이', // Pull_up -> 턱걸이
-                    //             '스쿼트' // Squat -> 스쿼트
-                    //           ];
-                    //           return InkWell(
-                    //             onTap: () {
-                    //               // Show the picker when the item is tapped
-                    //               _showRepetitionPicker(idx);
-                    //             },
-                    //             child: Padding(
-                    //               padding: const EdgeInsets.all(8.0),
-                    //               child: Row(
-                    //                 mainAxisAlignment:
-                    //                     MainAxisAlignment.spaceBetween,
-                    //                 children: [
-                    //                   Expanded(
-                    //                     child: Text(
-                    //                       '${exercises[idx]}',
-                    //                       style: TextStyle(color: Colors.white),
-                    //                     ),
-                    //                   ),
-                    //                   Row(
-                    //                     children: [
-                    //                       Text(
-                    //                         '${_repetitions[idx]}', // Display the selected repetition
-                    //                         style: TextStyle(
-                    //                           color: Colors.white,
-                    //                           fontWeight: FontWeight.bold,
-                    //                         ),
-                    //                       ),
-                    //                       const SizedBox(
-                    //                           width:
-                    //                               10), // Space between number and icon
-                    //                       const Icon(
-                    //                         Icons.settings,
-                    //                         color: Colors.white,
-                    //                         size: 20,
-                    //                       ),
-                    //                     ],
-                    //                   ),
-                    //                 ],
-                    //               ),
-                    //             ),
-                    //           );
-                    //         },
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
@@ -393,23 +295,17 @@ class _goalPageState extends State<goalPage> {
                         child: ListView.builder(
                           itemCount: 3,
                           itemBuilder: (BuildContext ctx, int idx) {
-                            // Korean exercise names
-                            List<String> exercises = [
-                              '푸쉬업', // Push_up
-                              '풀업', // Pull_up
-                              '스쿼트', // Squat
-                            ];
-
+                            // 각 운동의 이름
+                            List<String> exercises = ['푸쉬업', '풀업', '스쿼트'];
                             List<int> totalStepsList = [
-                              _repetitions[0], // Each exercise goal count
+                              _repetitions[0],
                               _repetitions[1],
-                              _repetitions[2],
+                              _repetitions[2]
                             ];
-
                             List<int> currentStepsList = [
-                              _workcount[0], // Current count for each exercise
+                              _workcount[0],
                               _workcount[1],
-                              _workcount[2],
+                              _workcount[2]
                             ];
 
                             int currentStep =
@@ -417,45 +313,62 @@ class _goalPageState extends State<goalPage> {
                                     ? totalStepsList[idx]
                                     : currentStepsList[idx];
 
-                            // Percentage calculation
-                            double percentage =
-                                (currentStep / totalStepsList[idx]) * 100;
+                            double percentage = totalStepsList[idx] == 0
+                                ? 0
+                                : (currentStep / totalStepsList[idx]) * 100;
 
-                            // Define different gradient colors for each exercise
+                            // 목표가 0인 경우 "목표를 설정해 주세요" 메시지 표시
+                            if (totalStepsList[idx] == 0) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      exercises[idx],
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      '목표를 설정해 주세요',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            // 목표가 0이 아닐 때만 StepProgressIndicator 표시
                             List<LinearGradient> selectedGradients = [
                               const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  // Colors.yellowAccent, // Gradient for Push_up
-                                  // Colors.deepOrange,
-                                  Colors
-                                      .lightBlueAccent, // Gradient for Pull_up
-                                  Colors.blue,
-                                ],
+                                colors: [Colors.lightBlueAccent, Colors.blue],
                               ),
                               const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.yellowAccent, // Gradient for Push_up
-                                  Colors.yellow
-                                ],
+                                colors: [Colors.yellowAccent, Colors.yellow],
                               ),
                               const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.greenAccent, // Gradient for Squat
-                                  Colors.green,
-                                ],
+                                colors: [Colors.greenAccent, Colors.green],
                               ),
                             ];
 
                             List<Color> unselectedColors = [
-                              Colors.cyan, // Unselected color for Push_up
-                              Colors.grey, // Unselected color for Pull_up
-                              Colors.purpleAccent, // Unselected color for Squat
+                              Colors.cyan,
+                              Colors.grey,
+                              Colors.purpleAccent,
                             ];
 
                             return Column(
@@ -466,15 +379,14 @@ class _goalPageState extends State<goalPage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      exercises[
-                                          idx], // Display exercise name in Korean
+                                      exercises[idx],
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     Text(
-                                      '$currentStep / ${totalStepsList[idx]}', // Display current progress / goal
+                                      '$currentStep / ${totalStepsList[idx]}',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -489,17 +401,14 @@ class _goalPageState extends State<goalPage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
                                       child: StepProgressIndicator(
-                                        totalSteps: totalStepsList[
-                                            idx], // Total goal count
-                                        currentStep:
-                                            currentStep, // Current progress
+                                        totalSteps: totalStepsList[idx],
+                                        currentStep: currentStep,
                                         size: 20,
                                         padding: 0,
                                         selectedColor: Colors.yellow,
-                                        unselectedColor: unselectedColors[
-                                            idx], // Apply unselected color based on index
-                                        selectedGradientColor: selectedGradients[
-                                            idx], // Apply gradient based on index
+                                        unselectedColor: unselectedColors[idx],
+                                        selectedGradientColor:
+                                            selectedGradients[idx],
                                         unselectedGradientColor: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
@@ -510,9 +419,8 @@ class _goalPageState extends State<goalPage> {
                                         ),
                                       ),
                                     ),
-                                    // Center the percentage text
                                     Text(
-                                      '${percentage.toStringAsFixed(0)}%', // Display percentage with no decimals
+                                      '${percentage.toStringAsFixed(0)}%',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -520,9 +428,7 @@ class _goalPageState extends State<goalPage> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(
-                                    height:
-                                        10), // Padding between progress bars
+                                const SizedBox(height: 10),
                               ],
                             );
                           },
