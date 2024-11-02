@@ -1,5 +1,7 @@
 import 'package:ait_project/Pages/calendar.dart';
+import 'package:ait_project/Pages/goal_setting.dart';
 import 'package:ait_project/Pages/help.dart';
+import 'package:ait_project/Pages/notification.dart';
 import 'package:flutter/material.dart';
 
 // 파이어베이스
@@ -19,35 +21,27 @@ class MorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '더보기', 
-          style: TextStyle(
-            fontSize: 25, 
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-          )),
+        title: const Text('더보기',
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            )),
         centerTitle: true,
         backgroundColor: aitNavy,
         elevation: 0,
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            const SizedBox(height: 10),
+            // const SizedBox(height: 10),
 
             // 내 정보
-            const Text(
-              '내 정보', 
-              style: TextStyle(
-                fontSize: 15, 
-                color: Colors.white
-              )
-            ),
-            const SizedBox(height: 20),
+            const Text('내 정보',
+                style: TextStyle(fontSize: 15, color: Colors.white)),
+            // const SizedBox(height: 20),
 
             // 신체 정보 수정
             _buildMenuItem('신체 정보 수정', onTap: () async {
@@ -68,25 +62,26 @@ class MorePage extends StatelessWidget {
               );
             }),
 
-            const SizedBox(height: 30),
+            // const SizedBox(height: 30),
 
             // 설정
-            const Text(
-              '설정', 
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.white
-              )
-            ),
+            const Text('설정',
+                style: TextStyle(fontSize: 15, color: Colors.white)),
             const SizedBox(height: 20),
 
             _buildMenuItem('알림설정', onTap: () {
               // 임시로
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => ExerciseCalendarWidget(),
+              //   ),
+              // );
+              // ExerciseCalendarWidget();
+              // ExerciseCalendar();
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => ExerciseCalendarPage(),
-                ),
+                MaterialPageRoute(builder: (context) => NotificationPage()),
               );
             }),
             _buildMenuItem('도움말', onTap: () {
@@ -98,6 +93,7 @@ class MorePage extends StatelessWidget {
               );
             }),
             _buildTextButton('로그아웃', onTap: () => _showLogoutDialog(context)),
+
             _buildTextButton('회원탈퇴', onTap: () {
               Navigator.push(
                 context,
@@ -106,7 +102,6 @@ class MorePage extends StatelessWidget {
                 ),
               );
             }),
-
           ],
         ),
       ),
@@ -117,20 +112,18 @@ class MorePage extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title, 
-              style: const TextStyle(
-                fontSize: 20, 
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-              )
-            ),
+            Text(title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                )),
             const Icon(
-              Icons.chevron_right, 
+              Icons.chevron_right,
               color: Colors.white,
               size: 30,
             ),
@@ -148,14 +141,12 @@ class MorePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title, 
-              style: const TextStyle(
-                fontSize: 20, 
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-              )
-            ),
+            Text(title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                )),
           ],
         ),
       ),
@@ -178,28 +169,31 @@ class MorePage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround, // 세로 방향으로 균등 배치
               children: [
-                const SizedBox(height: 5), 
+                const SizedBox(height: 5),
                 const Text(
                   '로그아웃 하시겠습니까?',
                   style: TextStyle(
-                    color: Colors.white, 
+                    color: Colors.white,
                     fontSize: 20,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 5), 
+                const SizedBox(height: 5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextButton(
-                      child: Text('로그아웃', style: TextStyle(color: aitGreen, fontSize: 15)),
+                      child: Text('로그아웃',
+                          style: TextStyle(color: aitGreen, fontSize: 15)),
                       onPressed: () async {
                         try {
                           await FirebaseAuth.instance.signOut();
 
                           // 홈으로 이동
                           Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (context) => const Root()), // Root 페이지로 이동
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const Root()), // Root 페이지로 이동
                             (Route<dynamic> route) => false,
                           );
                         } catch (e) {
@@ -210,7 +204,8 @@ class MorePage extends StatelessWidget {
                     ),
                     const SizedBox(width: 5), // 버튼 사이 간격 추가
                     TextButton(
-                      child: const Text('취소', style: TextStyle(color: Colors.white, fontSize: 15)),
+                      child: const Text('취소',
+                          style: TextStyle(color: Colors.white, fontSize: 15)),
                       onPressed: () {
                         Navigator.of(context).pop(); // 모달 닫기
                       },
