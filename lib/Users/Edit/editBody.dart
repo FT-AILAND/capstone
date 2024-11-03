@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -54,7 +53,8 @@ class _EditBodyState extends State<EditBody> {
   Future<void> _loadUserData() async {
     User? user = _auth.currentUser;
     if (user != null) {
-      DocumentSnapshot doc = await _firestore.collection('Users').doc(user.uid).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('Users').doc(user.uid).get();
       setState(() {
         _nickname = doc['nickname'];
         _height = doc['height'].toString(); // double을 String으로 변환
@@ -85,19 +85,15 @@ class _EditBodyState extends State<EditBody> {
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('신체 정보 수정', 
-          style: TextStyle(
-            fontSize: 25, 
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-          )
-        ),
+        title: const Text('신체 정보 수정',
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            )),
       ),
       body: SafeArea(
-        child: Form(
-          key: _formKey,
-          autovalidateMode: _autovalidateMode,
-          onChanged: _updateFormValidity,
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -160,33 +156,39 @@ class _EditBodyState extends State<EditBody> {
                     FilteringTextInputFormatter.digitsOnly,
                   ],
                 ),
-                Spacer(),
+                const SizedBox(height: 20), // Added consistent spacing
                 SignUpButton(
                   label: '수정하기',
                   onPressed: () async {
                     setState(() {
                       _autovalidateMode = AutovalidateMode.always;
                     });
-                    
+
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      
+
                       User? user = _auth.currentUser;
                       if (user != null) {
-                        await _firestore.collection("Users").doc(user.uid).update({
+                        await _firestore
+                            .collection("Users")
+                            .doc(user.uid)
+                            .update({
                           "nickname": _nickname,
                           "height": _height,
                           "weight": _weight,
                         });
-                        
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('정보가 수정되었습니다.', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                            content: Text('정보가 수정되었습니다.',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold)),
                             duration: Duration(seconds: 1),
                             backgroundColor: Colors.white,
                           ),
                         );
-                        
+
                         Navigator.pop(context);
                       }
                     }

@@ -62,23 +62,13 @@ class MorePage extends StatelessWidget {
               );
             }),
 
-            // const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
             // 설정
             const Text('설정',
                 style: TextStyle(fontSize: 15, color: Colors.white)),
-            const SizedBox(height: 20),
 
             _buildMenuItem('알림설정', onTap: () {
-              // 임시로
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => ExerciseCalendarWidget(),
-              //   ),
-              // );
-              // ExerciseCalendarWidget();
-              // ExerciseCalendar();
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => NotificationPage()),

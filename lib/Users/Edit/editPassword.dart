@@ -78,35 +78,35 @@ class _EditPasswordState extends State<EditPassword> {
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('비밀번호 변경', 
-          style: TextStyle(
-            fontSize: 25, 
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-          )
-        ),
+        title: const Text('비밀번호 변경',
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            )),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            if (_errorMessage != null)
-              Container(
-                width: double.infinity,
-                color: Colors.red,
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              if (_errorMessage != null)
+                Container(
+                  width: double.infinity,
+                  color: Colors.red,
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-            Expanded(
-              child: Form(
-                key: _formKey,
-                autovalidateMode: _autovalidateMode,
-                onChanged: _updateFormValidity,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: _autovalidateMode,
+                  onChanged: _updateFormValidity,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -154,10 +154,8 @@ class _EditPasswordState extends State<EditPassword> {
                         controller: _confirmPasswordController,
                         obscureText: true,
                         autovalidateMode: _autovalidateMode,
-                        onChanged: (value) {
-                        },
-                        onSaved: (value) {
-                        },
+                        onChanged: (value) {},
+                        onSaved: (value) {},
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return '새 비밀번호 확인을 입력해주세요.';
@@ -168,38 +166,44 @@ class _EditPasswordState extends State<EditPassword> {
                           return null;
                         },
                       ),
-                      const Spacer(),
+                      const SizedBox(
+                          height: 20), // Add some space before the button
                       SignUpButton(
                         label: '비밀번호 변경',
                         onPressed: () async {
                           setState(() {
                             _autovalidateMode = AutovalidateMode.always;
                           });
-                          
+
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
-                            
+
                             User? user = _auth.currentUser;
                             if (user != null) {
                               try {
                                 // 현재 비밀번호 확인
-                                AuthCredential credential = EmailAuthProvider.credential(
-                                  email: user.email!, 
-                                  password: _currentPassword!
+                                AuthCredential credential =
+                                    EmailAuthProvider.credential(
+                                  email: user.email!,
+                                  password: _currentPassword!,
                                 );
-                                await user.reauthenticateWithCredential(credential);
-                                
+                                await user
+                                    .reauthenticateWithCredential(credential);
+
                                 // 새 비밀번호로 변경
                                 await user.updatePassword(_newPassword!);
-                                
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('비밀번호가 변경되었습니다.', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                                    content: Text('비밀번호가 변경되었습니다.',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold)),
                                     duration: Duration(seconds: 2),
                                     backgroundColor: Colors.white,
                                   ),
                                 );
-                                
+
                                 Navigator.pop(context);
                               } on FirebaseAuthException catch (e) {
                                 String errorMessage = '비밀번호 변경에 실패했습니다.';
@@ -217,8 +221,8 @@ class _EditPasswordState extends State<EditPassword> {
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

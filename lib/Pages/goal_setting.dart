@@ -108,12 +108,6 @@ class _GoalSettingPageState extends State<GoalSettingPage> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
         ),
         centerTitle: true,
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.check, color: Colors.white),
-        //     onPressed: _saveAndReturn,
-        //   ),
-        // ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -169,7 +163,8 @@ class _GoalSettingPageState extends State<GoalSettingPage> {
                           _showRepetitionPicker(idx);
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.only(
+                              top: 8.0, bottom: 8.0, left: 10, right: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
