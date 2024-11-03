@@ -1,3 +1,5 @@
+import 'package:ait_project/Navigator/bottomAppBar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -42,6 +44,151 @@ class WorkoutResultPage extends StatelessWidget {
     }
   }
 
+  Future<void> _deleteWorkoutResult(BuildContext context) async {
+    try {
+      // 로딩 다이얼로그 표시
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      // timestamp를 ISO 8601 형식의 문자열로 변환
+      String timestampString;
+      if (workoutResult.timestamp is DateTime) {
+        timestampString = workoutResult.timestamp!.toIso8601String();
+      } else if (workoutResult.timestamp is Timestamp) {
+        timestampString = (workoutResult.timestamp as Timestamp)
+            .toDate()
+            .toIso8601String();
+      } else {
+        throw Exception('Invalid timestamp type');
+      }
+
+      // Firestore 쿼리 실행
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('exercise_DB')
+          .where('timestamp', isEqualTo: timestampString)
+          .where('workout_name', isEqualTo: workoutResult.workoutName)
+          .get();
+      
+      // 로딩 다이얼로그 닫기
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // 일치하는 문서가 있다면 삭제
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.delete();
+
+        if (context.mounted) {
+          // 삭제 성공 다이얼로그
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return WillPopScope(
+                onWillPop: () async => false,  // 뒤로 가기 버튼 비활성화
+                child: AlertDialog(
+                  content: const Text(
+                    '기록이 삭제되었습니다.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  actions: [
+                    TextButton(
+                      child: const Text('확인'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // 다이얼로그 닫기
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  BulidBottomAppBar(index: 1),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                      ),
+                  ],
+                  )
+              );
+            },
+          );
+        }
+      } else {
+        if (context.mounted) {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: const Text('삭제할 기록을 찾을 수 없습니다.'),
+                actions: [
+                  TextButton(
+                    child: const Text('확인'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+    } catch (e) {
+      // 로딩 다이얼로그가 표시되어 있다면 닫기
+      if (context.mounted) {
+        Navigator.of(context).pop();
+
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Text('삭제 중 오류가 발생했습니다: $e'),
+              actions: [
+                TextButton(
+                  child: const Text('확인'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  Future<void> _showDeleteConfirmationDialog(BuildContext context) async{
+    final bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('삭제하시겠습니까?'),
+          actions: [
+            TextButton(
+              child: const Text('예'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+            TextButton(
+              child: const Text('취소'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true && context.mounted) {
+      await _deleteWorkoutResult(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +208,12 @@ class WorkoutResultPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.white, size: 30),
+            onPressed: () => _showDeleteConfirmationDialog(context),
+          ),
+        ],
       ),
 
       body: SingleChildScrollView(
