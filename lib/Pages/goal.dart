@@ -763,6 +763,7 @@ class _goalPageState extends State<goalPage> {
                                                 ? selectedGradients[idx]
                                                 : null,
                                             unselectedGradientColor:
+                                                //test
                                                 LinearGradient(
                                               colors: [
                                                 Color(0xFF595B77)
