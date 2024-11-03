@@ -41,7 +41,8 @@ class MorePage extends StatelessWidget {
             // 내 정보
             const Text('내 정보',
                 style: TextStyle(fontSize: 15, color: Colors.white)),
-            // const SizedBox(height: 20),
+            
+            const SizedBox(height: 10),
 
             // 신체 정보 수정
             _buildMenuItem('신체 정보 수정', onTap: () async {
@@ -67,6 +68,8 @@ class MorePage extends StatelessWidget {
             // 설정
             const Text('설정',
                 style: TextStyle(fontSize: 15, color: Colors.white)),
+                
+            const SizedBox(height: 10),
 
             _buildMenuItem('알림설정', onTap: () {
               Navigator.push(
@@ -102,7 +105,7 @@ class MorePage extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
