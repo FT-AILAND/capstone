@@ -70,6 +70,7 @@ class _EditPasswordState extends State<EditPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFF3D3F5A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF3D3F5A),
@@ -87,6 +88,7 @@ class _EditPasswordState extends State<EditPassword> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
+          reverse: true,
           child: Column(
             children: [
               if (_errorMessage != null)

@@ -52,8 +52,13 @@ class _EditBodyState extends State<EditBody> {
           await _firestore.collection('Users').doc(user.uid).get();
       setState(() {
         _nickname = doc['nickname'];
-        _height = doc['height'].toInt().toString();
-        _weight = doc['weight'].toInt().toString();
+        // height와 weight 값이 숫자나 문자열일 수 있으므로 안전하게 처리
+        var heightValue = doc['height'];
+        var weightValue = doc['weight'];
+        
+        // 숫자인 경우 문자열로 변환, 문자열인 경우 그대로 사용
+        _height = (heightValue is num) ? heightValue.toString() : heightValue;
+        _weight = (weightValue is num) ? weightValue.toString() : weightValue;
 
         _nicknameController.text = _nickname ?? '';
         _heightController.text = _height ?? '';
@@ -92,9 +97,9 @@ class _EditBodyState extends State<EditBody> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Form(  // Form 위젯 추가
+            child: Form(
               key: _formKey,
-              onChanged: _updateFormValidity,  // Form 변경시 유효성 검사
+              onChanged: _updateFormValidity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -180,8 +185,8 @@ class _EditBodyState extends State<EditBody> {
                                 .doc(user.uid)
                                 .update({
                               "nickname": _nickname,
-                              "height": int.parse(_height ?? "0"),  
-                              "weight": int.parse(_weight ?? "0"),  
+                              "height": int.tryParse(_height ?? "0") ?? 0,  // 문자열을 안전하게 정수로 변환
+                              "weight": int.tryParse(_weight ?? "0") ?? 0,  // 문자열을 안전하게 정수로 변환
                             });
 
                             // ignore: use_build_context_synchronously

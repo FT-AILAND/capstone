@@ -1,6 +1,8 @@
 // 카메라 화면 UI + 카메라에서 이미지 받아와서 포즈 추출기에 전달 + 스켈레톤 그려주기 + 줌인 줌아웃 기능 + 전면 후면 카메라 전환 기능
 // ignore_for_file: unused_field
+
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:ait_project/models/workout_result.dart';
 import 'package:camera/camera.dart';
@@ -23,7 +25,6 @@ final _orientations = {
   DeviceOrientation.portraitDown: 180,
   DeviceOrientation.landscapeRight: 270,
 };
-
 // 카메라 화면
 // ignore: must_be_immutable
 class CameraView extends StatefulWidget {
@@ -37,6 +38,7 @@ class CameraView extends StatefulWidget {
   }) : super(key: key);
 
   final String title;
+  
   // 스켈레톤 그려주는 객체
   final CustomPaint? customPaint;
   // 이미지 받을 때마다 실행하는 함수
@@ -68,6 +70,7 @@ class _CameraViewState extends State<CameraView> {
   @override
   void initState() {
     super.initState();
+
     // Change the status bar appearance
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // Makes the status bar transparent
@@ -113,6 +116,11 @@ class _CameraViewState extends State<CameraView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           widget.title == 'Pull Up'
               ? '풀업'
@@ -121,9 +129,10 @@ class _CameraViewState extends State<CameraView> {
                   : widget.title == 'Push Up'
                       ? '푸시업'
                       : widget.title,
-          style: TextStyle(color: const Color(0xFF4EFE8A)),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF3D3F5A),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
@@ -132,7 +141,7 @@ class _CameraViewState extends State<CameraView> {
               child: const Icon(
                 Icons.flip_camera_android_outlined,
                 size: 40,
-                color: const Color(0xFF4EFE8A),
+                color: Colors.white,
               ),
             ),
           )
@@ -145,67 +154,62 @@ class _CameraViewState extends State<CameraView> {
     );
   }
 
-  Widget? _floatingActionButton() {
-    // change state when workoutAnalysis's detect & analysis value is change
+  Widget? _floatingActionButton() { // change state when workoutAnalysis's detect & analysis value is change
     return SizedBox(
         height: 70.0,
         width: 70.0,
         child: FloatingActionButton(
-            backgroundColor:
-                const Color(0xFF4EFE8A), // Green highlight color for AppBar,
-            child: widget.workoutAnalysis.end
-                ? const Icon(
-                    Icons.poll,
-                    size: 40,
-                  ) // 그래프 아이콘 (end = true)
-                : (widget.workoutAnalysis.detecting // (end = false)
-                    ? const Icon(Icons.stop,
-                        size: 40) // 일시정지 아이콘 (detecting = true)
-                    : const Icon(Icons.play_arrow_rounded,
-                        size: 40)), // 재생 아이콘 (detecting = false)
-            onPressed: () async {
-              try {
-                // 그래프 아이콘 (end = true) 일 때 누르면 동작
-                if (widget.workoutAnalysis.end) {
-                  // 카메라 컨트롤러가 있다면 해제
-                  if (_controller != null) {
-                    await _controller!.stopImageStream();
-                    await _controller!.dispose();
-                    _controller = null;
-                  }
+          backgroundColor: const Color(0xFF4EFE8A), 
+          child: widget.workoutAnalysis.end
+              ? const Icon(Icons.poll ,size: 40) // 그래프 아이콘 (end = true)
+              : (widget.workoutAnalysis.detecting // (end = false)
+                  ? const Icon(Icons.pause, size: 40) // 일시정지 아이콘 (detecting = true)
+                  : const Icon(Icons.play_arrow_rounded, size: 40)), // 재생 아이콘 (detecting = false)
+          onPressed: () async {
+            try{
+              // 그래프 아이콘 (end = true) 일 때 누르면 동작
+              if (widget.workoutAnalysis.end){
 
-                  try {
-                    // 운동이 끝났을 때
-                    WorkoutResult workoutResult =
-                        await widget.workoutAnalysis.makeWorkoutResult();
-
-                    // 현재 라우트 스택 출력
-                    print('Current route stack: ${Get.routeTree}');
-
-                    // WorkDetailPage로 돌아가기 시도
-                    Get.until((route) {
-                      print('Checking route: ${route.settings.name}');
-                      return route.settings.name == '/WorkDetailPage';
-                    });
-
-                    // 결과 페이지로 이동
-                    await Get.to(
-                        () => WorkoutResultPage(workoutResult: workoutResult));
-                  } catch (e) {
-                    print('운동 종료 처리 중 오류 발생: $e');
-                    Get.snackbar('오류', '오류가 발생했습니다. 다시 시도해주세요.');
-                  }
-                } else if (widget.workoutAnalysis.detecting) {
-                  // detecting = true 일 때 stopAnalysing()을 호출하여 운동을 일시정지
-                  widget.workoutAnalysis.stopAnalysing();
-                } else {
-                  // 운동이 시작되지 않았을 때 startDetectingDelayed()를 호출하여 지연 후 운동을 시작
-                  widget.workoutAnalysis.startDetectingDelayed();
+                // 카메라 컨트롤러가 있다면 해제
+                if (_controller != null) {
+                  await _controller!.stopImageStream();
+                  await _controller!.dispose();
+                  _controller = null;
                 }
-              } catch (e) {
-                print(e);
+
+                try {              
+                  // 운동이 끝났을 때
+                  WorkoutResult workoutResult = await widget.workoutAnalysis.makeWorkoutResult();
+
+                  // 현재 라우트 스택 출력
+                  print('Current route stack: ${Get.routeTree}');
+
+                  // WorkDetailPage로 돌아가기 시도
+                  Get.until((route) {
+                    print('Checking route: ${route.settings.name}');
+                    return route.settings.name == '/WorkDetailPage';
+                  });
+
+                  // 결과 페이지로 이동
+                  await Get.to(() => WorkoutResultPage(workoutResult: workoutResult));
+                } catch (e) {
+                  print('운동 종료 처리 중 오류 발생: $e');
+                  Get.snackbar('오류', '오류가 발생했습니다. 다시 시도해주세요.');
+                }
+
+              } else if (widget.workoutAnalysis.detecting) { 
+                // detecting = true 일 때 stopAnalysing()을 호출하여 운동을 일시정지
+                widget.workoutAnalysis.stopAnalysing();
+              } else {
+                // 운동이 시작되지 않았을 때 startDetectingDelayed()를 호출하여 지연 후 운동을 시작
+                widget.workoutAnalysis.startDetectingDelayed(); 
               }
-            }));
+            } catch(e){
+              print(e);
+            }
+            }
+        )
+      );
   }
 
   // 카메라 화면 보여주기 + 화면에서 실시간으로 포즈 추출
@@ -242,22 +246,24 @@ class _CameraViewState extends State<CameraView> {
           ),
           // 추출된 스켈레톤 그리기
           if (widget.customPaint != null) widget.customPaint!,
-          // Positioned.fill(
-          //   child: Align(
-          //     alignment: Alignment.topCenter,
-          //     child: _showWorkoutProcess(),
-          //   ),
-          // ),
           Positioned.fill(
-              child: Align(
-            alignment: Alignment.topLeft,
-            child:
-                // _showAngleText()
-                _buildTextWithBackground("${widget.workoutAnalysis.count}"),
-          )),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: _showWorkoutProcess(),
+            ),
+          ),
           Positioned.fill(
-              child: Align(
-                  alignment: Alignment.topRight, child: _showFeedbackText()))
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: _showAngleText()
+            )
+          ),
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: _showFeedbackText()
+            )
+          )
         ],
       ),
     );
@@ -332,83 +338,108 @@ class _CameraViewState extends State<CameraView> {
         rotationCompensation =
             (sensorOrientation - rotationCompensation + 360) % 360;
       }
-      imageRotation =
-          InputImageRotationValue.fromRawValue(rotationCompensation);
+      imageRotation = InputImageRotationValue.fromRawValue(rotationCompensation);
     }
     if (imageRotation == null) return null;
 
     // get image format
-    final inputImageFormat =
-        InputImageFormatValue.fromRawValue(image.format.raw);
+    final inputImageFormat = 
+      InputImageFormatValue.fromRawValue(image.format.raw);
     // validate format depending on platform
     // only supported formats:
     // * nv21 for Android
     // * bgra8888 for iOS
     if (inputImageFormat == null ||
         (Platform.isAndroid && inputImageFormat != InputImageFormat.nv21) ||
-        (Platform.isIOS && inputImageFormat != InputImageFormat.bgra8888))
-      return null;
+        (Platform.isIOS && inputImageFormat != InputImageFormat.bgra8888)) return null;
 
-    // since format is constraint to nv21 or bgra8888, both only have one plane
-    if (image.planes.length != 1) return null;
-    final plane = image.planes.first;
 
-    final inputImage = InputImage.fromBytes(
-      bytes: plane.bytes,
-      metadata: InputImageMetadata(
-        size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: imageRotation, // used only in Android
-        format: inputImageFormat, // used only in iOS
-        bytesPerRow: plane.bytesPerRow, // used only in iOS
-      ),
-    );
+      // since format is constraint to nv21 or bgra8888, both only have one plane
+      if (image.planes.length != 1) return null;
+      final plane = image.planes.first;
 
-    widget.onImage(inputImage);
+      final inputImage =
+          InputImage.fromBytes(
+            bytes: plane.bytes,
+            metadata: InputImageMetadata(
+              size: Size(image.width.toDouble(), image.height.toDouble()),
+              rotation: imageRotation, // used only in Android
+              format: inputImageFormat, // used only in iOS
+              bytesPerRow: plane.bytesPerRow, // used only in iOS
+            ),
+          );
+
+      widget.onImage(inputImage);
   }
 
-  // Widget _showWorkoutProcess() {
-  //   String processingString;
-  //   if (widget.workoutAnalysis.end) {
-  //     processingString = '운동분석종료';
-  //   } else {
-  //     if (widget.workoutAnalysis.detecting) {
-  //       processingString = '운동분석';
-  //     } else {
-  //       processingString = '운동분석대기';
-  //     }
-  //   }
+  Widget _showWorkoutProcess() {
+  // 각도 표시를 위한 위젯 리스트 생성
+  List<Widget> angleWidgets = [];
+  
+  // 각도 데이터 처리
+  for (String key in widget.workoutAnalysis.tempAngleDict.keys.toList()) {
+    try {
+      final angles = widget.workoutAnalysis.tempAngleDict[key];
+      if (angles != null && angles.isNotEmpty) {
+        double lastAngle = angles.last;
+        angleWidgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2.0),
+            child: Text(
+              "$key : ${lastAngle.toStringAsFixed(1)}°",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint("각도 처리 중 오류 발생: $e");
+    }
+  }
 
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.center,
-  //     children: [
-  //       _buildTextWithBackground(processingString),
-  //       _buildTextWithBackground(
-  //           "${widget.title == 'Pull Up' ? '풀업' : widget.title == 'Squat' ? '스쿼트' : widget.title == 'Push Up' ? '푸시업' : widget.title} 개수: ${widget.workoutAnalysis.count}"),
-  //     ],
-  //   );
-  // }
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildTextWithBackground(
+        TextWithSize(
+          text: "${widget.workoutAnalysis.count} 회",
+          fontSize: 25,
+        ),
+        textColor: Colors.greenAccent,
+      ),
+      const SizedBox(height: 8), // 간격 추가
+      ...angleWidgets, // 스프레드 연산자를 사용하여 위젯 리스트 추가
+    ],
+  );
+}
 
-  // Widget _showAngleText() {
-  //   List<Widget> li = <Widget>[
-  //     _buildTextWithBackground("운동상태: ${widget.workoutAnalysis.state}"),
-  //   ];
-  //   for (String key in widget.workoutAnalysis.tempAngleDict.keys.toList()) {
-  //     try {
-  //       if (widget.workoutAnalysis.tempAngleDict[key]?.isNotEmpty) {
-  //         double angle = widget.workoutAnalysis.tempAngleDict[key]?.last;
-  //         li.add(_buildTextWithBackground(
-  //           "$key : ${double.parse((angle.toStringAsFixed(1)))}",
-  //         ));
-  //       }
-  //     } catch (e) {
-  //       print("각도 텍스트화 에러. 에러코드 : $e");
-  //     }
-  //   }
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: li,
-  //   );
-  // }
+  Widget _showAngleText() {
+    List<Widget> li = <Widget>[Text("", style: const TextStyle(fontSize: 13),)];
+    // List<Widget> li = <Widget>[Text("${widget.workoutAnalysis.state}", style: const TextStyle(fontSize: 13),)];
+    // for (String key in widget.workoutAnalysis.tempAngleDict.keys.toList()) {
+    //   try {
+    //     if (widget.workoutAnalysis.tempAngleDict[key]?.isNotEmpty) {
+    //       double angle = widget.workoutAnalysis.tempAngleDict[key]?.last;
+    //       li.add(Text(
+    //         "$key : ${double.parse((angle.toStringAsFixed(1)))}",
+    //         style: const TextStyle(
+    //           color: Colors.white,
+    //           fontSize: 13
+    //         ),
+    //       ));
+    //     }
+    //   } catch (e) {
+    //     print("각도 텍스트화 에러. 에러코드 : $e");
+    //   }
+    // }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: li,
+    );
+  }
 
   final Map<String, String> feedbackTranslation = {
     'not_elbow_up': '이완 부족',
@@ -427,60 +458,82 @@ class _CameraViewState extends State<CameraView> {
   };
 
   Widget _showFeedbackText() {
+    String processingString;
+    if (widget.workoutAnalysis.end) {
+      processingString = '분석종료';
+    } else{
+      if (widget.workoutAnalysis.detecting) {
+        processingString = '분석중';
+      } else {
+        processingString = '분석대기';
+      }
+    }
     List<Widget> li = <Widget>[
-      _buildTextWithBackground("피드백 결과"),
+      _buildTextWithBackground(
+        TextWithSize(
+          text: processingString,
+          fontSize: 15  // 원하는 폰트 크기 설정
+        )
+      ),
     ];
-
     for (String key in widget.workoutAnalysis.feedBack.keys.toList()) {
       try {
         if (widget.workoutAnalysis.feedBack[key]?.isNotEmpty) {
-          String val =
-              widget.workoutAnalysis.feedBack[key]?.last == 1 ? 'O' : 'X';
+          String val = widget.workoutAnalysis.feedBack[key]?.last == 1 ? 'O' : 'X';
 
-          // Translate the key from English to Korean
-          String translatedKey = feedbackTranslation[key] ??
-              key; // Use the Korean translation or the key if not found
-
+          String translatedKey = feedbackTranslation[key] ?? key; 
+          
           li.add(_buildTextWithBackground(
-            "$translatedKey : $val",
+            TextWithSize(
+              text: "$translatedKey",
+              fontSize: 15  // 원하는 기본 폰트 크기 설정
+            ),
             textColor: widget.workoutAnalysis.feedBack[key]?.last == 1
                 ? Colors.redAccent
                 : Colors.greenAccent,
           ));
         }
       } catch (e) {
-        print("피드백 결과 불러오기 에러. 에러코드: $e");
+        print("피드백 결과 불러오기 에러. 에러코드 : $e");
       }
     }
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: li,
     );
   }
+}
 
-// Helper method to build text with a background for better readability
-  Widget _buildTextWithBackground(String text,
-      {Color textColor = Colors.white, double fontSize = 20}) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5.0),
-        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-        decoration: BoxDecoration(
-          color: Colors.black
-              .withOpacity(0.3), // Semi-transparent black background
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: textColor,
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-          ),
+class TextWithSize {
+  final String text;
+  final double fontSize;
+
+  TextWithSize({
+    required this.text,
+    this.fontSize = 15,
+  });
+}
+
+Widget _buildTextWithBackground(TextWithSize textData,
+    {Color textColor = Colors.white}) {
+  return Padding(
+    padding: const EdgeInsets.all(2.0),
+    child: Container(
+      margin: const EdgeInsets.symmetric(vertical: 2.0),
+      padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
+      decoration: BoxDecoration(
+        color:
+            Colors.black.withOpacity(0.5), // Semi-transparent black background
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        textData.text,
+        style: TextStyle(
+          color: textColor,
+          fontSize: textData.fontSize,
+          fontWeight: FontWeight.bold,
         ),
       ),
-    );
-  }
+    ),
+  );
 }

@@ -240,7 +240,7 @@ class _goalPageState extends State<goalPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('운동 기록이 저장되었습니다.'),
+          content: const Text('운동 목표가 저장되었습니다.'),
           backgroundColor: Colors.green,
         ),
       );

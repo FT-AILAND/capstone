@@ -94,27 +94,50 @@ class WorkoutResultPage extends StatelessWidget {
               return WillPopScope(
                 onWillPop: () async => false,  // 뒤로 가기 버튼 비활성화
                 child: AlertDialog(
-                  content: const Text(
-                    '기록이 삭제되었습니다.',
-                    style: TextStyle(fontSize: 16),
+                  backgroundColor: aitNavy,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  actions: [
-                    TextButton(
-                      child: const Text('확인'),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // 다이얼로그 닫기
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  BulidBottomAppBar(index: 1),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 24),
+                  content: SizedBox(
+                    height: 120,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const SizedBox(height: 5),
+                        const Text(
+                          '기록이 삭제되었습니다.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,  // 가운데 정렬로 변경
+                          children: [
+                            TextButton(
+                              child: Text('확인',
+                                  style: TextStyle(color: aitGreen, fontSize: 15)),
+                              onPressed: () {
+                                Navigator.of(context).pop(); // 다이얼로그 닫기
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        BulidBottomAppBar(index: 1),
+                                  ),
+                                  (route) => false,
+                                );
+                              },
                             ),
-                            (route) => false,
-                          );
-                        },
-                      ),
-                  ],
-                  )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               );
             },
           );
@@ -164,22 +187,50 @@ class WorkoutResultPage extends StatelessWidget {
     }
   }
 
-  Future<void> _showDeleteConfirmationDialog(BuildContext context) async{
+  Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
     final bool? shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('삭제하시겠습니까?'),
-          actions: [
-            TextButton(
-              child: const Text('예'),
-              onPressed: () => Navigator.of(context).pop(true),
+          backgroundColor: aitNavy,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 24),
+          content: SizedBox(
+            height: 120,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                const SizedBox(height: 5),
+                const Text(
+                  '삭제하시겠습니까?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      child: Text('예',
+                          style: TextStyle(color: aitGreen, fontSize: 15)),
+                      onPressed: () => Navigator.of(context).pop(true),
+                    ),
+                    const SizedBox(width: 5),
+                    TextButton(
+                      child: const Text('취소',
+                          style: TextStyle(color: Colors.white, fontSize: 15)),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            TextButton(
-              child: const Text('취소'),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-          ],
+          ),
         );
       },
     );
