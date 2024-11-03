@@ -63,17 +63,18 @@ class SquatAnalysis implements WorkoutAnalysis {
   late double toeX;
 
   void detect(Pose pose) {
-    // 포즈 추정한 관절값을 바탕으로 개수를 세고, 자세를 평가
-    Map<PoseLandmarkType, PoseLandmark> landmarks = pose.landmarks;
-    for (int i = 0; i < jointIndx.length; i++) {
+    // 포즈 랜드마크 추출 및 각도 계산
+    Map<PoseLandmarkType, PoseLandmark> landmarks = pose.landmarks; // 관절 위치 추출
+    for (int i = 0; i < jointIndx.length; i++) { // 정의된 관절 좌표 가져오기
       List<List<double>> listXyz = findXyz(_vals[i], landmarks);
-      double angle = calculateAngle3D(listXyz, direction: 1);
-      _tempAngleDict[_keys[i]]!.add(angle);
+      double angle = calculateAngle3D(listXyz, direction: 1); // 관절 각도 계산
+      _tempAngleDict[_keys[i]]!.add(angle); // 관절 각도 저장
     }
-    kneeX = landmarks[PoseLandmarkType.values[26]]!.x;
-    toeX = landmarks[PoseLandmarkType.values[32]]!.x;
+    kneeX = landmarks[PoseLandmarkType.values[26]]!.x; // 무릎 x좌표
+    toeX = landmarks[PoseLandmarkType.values[32]]!.x; // 발가락 x좌표 무릎이 발보다 바깥에 있는지 확인하는 용도
 
-    if (_state == 'up') {
+    // 발 길이와 발가락 위치 초기화
+    if (_state == 'up') { // up 상태일 때는 발길이, 발가락 위치 초기화 해서 _tempAngleDict에 저장
       if (isStart == true) {
         footLength = getDistance(landmarks[PoseLandmarkType.values[32]]!,
             landmarks[PoseLandmarkType.values[30]]!);
@@ -88,12 +89,13 @@ class SquatAnalysis implements WorkoutAnalysis {
               customSum(_tempAngleDict['toe_location']!) /
                   _tempAngleDict['toe_location']!.length <
           kneeX) {
-        isKneeOut = true;
+        isKneeOut = true; // down 상태일 때는 무릎이 발보다 바깥에 있는지 판단
       }
     }
+    // 엉덩이와 무릎 각도 계산 및 운동 시작 확인
     double hipAngle = _tempAngleDict['right_hip']!.last;
     double kneeAngle = _tempAngleDict['right_knee']!.last;
-    if (hipAngle > 215 && hipAngle < 350) {
+    if (hipAngle > 215 && hipAngle < 350) { // 엉덩이 각도가 215도에서 350도 사이일 때, 엉덩이와 무릎의 평균 각도를 _tempAngleDict에 추가
       _tempAngleDict['avg_hip_knee']!.add((hipAngle + kneeAngle) / 2);
     }
     if (!isStart &&
