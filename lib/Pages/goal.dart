@@ -699,180 +699,91 @@ class _goalPageState extends State<goalPage> {
                               ];
 
                               // Check if there's a goal set for the exercise
-                              if (totalStepsList[idx] == 0) {
-                                return isSameDay(_selectedDay, DateTime.now())
-                                    ? Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 10.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              exercises[idx],
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            const Text(
-                                              '목표를 설정해 주세요',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                height:
-                                                    20), // Add space before the next exercise
-                                          ],
-                                        ),
-                                      )
-                                    : Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                exercises[idx],
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              Text(
-                                                '0 / 0', // Display 0/0 for other dates with no goal
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10.0),
-                                          Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: StepProgressIndicator(
-                                                  totalSteps:
-                                                      1, // Set to 1 for an empty bar
-                                                  currentStep: 0,
-                                                  size: 20,
-                                                  selectedColor: unselectedColors[
-                                                      idx], // Use unselected color
-                                                  unselectedColor: aitGrey,
-                                                  selectedGradientColor:
-                                                      selectedGradients[idx],
-                                                  unselectedGradientColor:
-                                                      LinearGradient(
-                                                    colors: [
-                                                      Color(0xFF595B77)
-                                                          .withOpacity(0.5),
-                                                      Color(0xFF595B77),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                '0%', // Display 0% progress
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                              height:
-                                                  20), // Add space before the next exercise
-                                        ],
-                                      );
-                              }
-
-                              // For exercises with a set goal
-                              int currentStep =
-                                  currentStepsList[idx] > totalStepsList[idx]
-                                      ? totalStepsList[idx]
-                                      : currentStepsList[idx];
-
-                              // Calculate percentage: if currentStepsList[idx] is greater than totalStepsList[idx], set it to 100
-                              double percentage = (currentStepsList[idx] >
+                              bool hasGoal = totalStepsList[idx] > 0;
+                              int currentStep = currentStepsList[idx];
+                              double percentage = (currentStep >
                                       totalStepsList[idx])
                                   ? 100
                                   : (currentStep / totalStepsList[idx]) * 100;
 
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        exercises[idx],
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${currentStepsList[idx]} / ${totalStepsList[idx]}', // Show currentStepsList here
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                      height: 10.0), // Consistent spacing
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: StepProgressIndicator(
-                                          totalSteps: totalStepsList[idx],
-                                          currentStep:
-                                              currentStep, // This remains unchanged for the graph
-                                          size: 20,
-                                          padding: 0,
-                                          selectedColor: Colors.yellow,
-                                          unselectedColor:
-                                              unselectedColors[idx],
-                                          selectedGradientColor:
-                                              selectedGradients[idx],
-                                          unselectedGradientColor:
-                                              LinearGradient(
-                                            colors: [
-                                              Color(0xFF595B77)
-                                                  .withOpacity(0.5),
-                                              Color(0xFF595B77),
-                                            ],
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical:
+                                        10.0), // Consistent vertical padding
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          exercises[idx],
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                      Text(
-                                        '${percentage.toStringAsFixed(0)}%', // This percentage can still show 100 if exceeded
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
+                                        Text(
+                                          hasGoal
+                                              ? '${currentStepsList[idx]} / ${totalStepsList[idx]}'
+                                              : '0 / 0',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                      height:
-                                          10), // Add space before the next exercise
-                                ],
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                        height: 10.0), // Consistent spacing
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: StepProgressIndicator(
+                                            totalSteps: hasGoal
+                                                ? totalStepsList[idx]
+                                                : 1, // Set to 1 for an empty bar
+                                            currentStep: hasGoal
+                                                ? (currentStepsList[idx] >
+                                                        totalStepsList[idx]
+                                                    ? totalStepsList[idx]
+                                                    : currentStepsList[idx])
+                                                : 0,
+                                            size: 20,
+                                            padding: 0,
+                                            selectedColor: hasGoal
+                                                ? Colors.yellow
+                                                : unselectedColors[idx],
+                                            unselectedColor: aitGrey,
+                                            selectedGradientColor: hasGoal
+                                                ? selectedGradients[idx]
+                                                : null,
+                                            unselectedGradientColor:
+                                                //test
+                                                LinearGradient(
+                                              colors: [
+                                                Color(0xFF595B77)
+                                                    .withOpacity(0.5),
+                                                Color(0xFF595B77),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '${hasGoal ? percentage.toStringAsFixed(0) : 0}%', // Display 0% progress if no goal
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           ),
