@@ -51,6 +51,12 @@
     <td><img src="https://github.com/user-attachments/assets/e618bca8-e5e9-41f3-a3c3-724c3792e1a2" width="300"></td>
     <td><img src="https://github.com/user-attachments/assets/b4943f53-612c-4b98-b3ca-f3587dcb04fd" width="300"></td>
   </tr>
+  <tr>
+    <td>영상 출처</td>
+    <td>https://youtu.be/XmxpYKKlqok?si=B8i026T9lP2HJGWD</td>
+    <td>https://youtube.com/shorts/BLI3ZSWs2ck?si=g5UazZvNv80RrFMI</td>
+    <td>https://youtu.be/3fl7uYmiMVw?si=AripfOMK55mOJf78</td>
+  </tr>
 </table>
 
 ### 📎 운동 기록 페이지
