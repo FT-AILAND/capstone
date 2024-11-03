@@ -1,10 +1,13 @@
 import 'package:ait_project/Pages/goal_setting.dart';
+import 'package:ait_project/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart'; // Firestore
 import 'package:ait_project/Pages/calendar.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class goalPage extends StatefulWidget {
   const goalPage({super.key});
@@ -14,6 +17,43 @@ class goalPage extends StatefulWidget {
 }
 
 class _goalPageState extends State<goalPage> {
+  Widget _buildMarker(Color color) {
+    String workoutName =
+        workoutColors.entries.firstWhere((entry) => entry.value == color).key;
+    return Tooltip(
+      message: workoutNames[workoutName] ?? workoutName,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 1.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color,
+        ),
+        width: 7.0,
+        height: 7.0,
+      ),
+    );
+  }
+
+  late CalendarFormat _calendarFormat;
+  late DateTime _focusedDay;
+  DateTime? _selectedDay;
+  Map<DateTime, List<Color>> _events = {};
+  Map<DateTime, List<Map<String, dynamic>>> _eventDetails = {};
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<Map<String, dynamic>> _selectedDayEvents = [];
+
+  final Map<String, Color> workoutColors = {
+    'push_up': Colors.blue,
+    'pull_up': Colors.yellow,
+    'squat': Colors.green,
+  };
+
+  final Map<String, String> workoutNames = {
+    'push_up': '푸시업',
+    'pull_up': '풀업',
+    'squat': '스쿼트',
+  };
   // List to store repetitions for each exercise
   List<int> _repetitions = [
     0,
@@ -28,7 +68,7 @@ class _goalPageState extends State<goalPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // Loading indicator
-  bool _isLoading = true; // Set to true initially to show loading spinner
+  // bool _isLoading = true; // Set to true initially to show loading spinner
   // Field names for Firestore
   final List<String> _exerciseFields = ['pull_up', 'push_up', 'squat'];
 
@@ -37,6 +77,10 @@ class _goalPageState extends State<goalPage> {
     super.initState();
     _loadUserRepetitionData(); // Load existing data from Firestore
     _loadUserWorkData();
+    _calendarFormat = CalendarFormat.month;
+    _focusedDay = DateTime.now();
+    _selectedDay = _focusedDay;
+    _loadEvents();
   }
 
   // Load current user's exercise repetitions from Firestore
@@ -203,242 +247,640 @@ class _goalPageState extends State<goalPage> {
     }
   }
 
+  void _loadEvents() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('exercise_DB')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        Map<DateTime, List<Color>> newEvents = {};
+        Map<DateTime, List<Map<String, dynamic>>> newEventDetails = {};
+
+        for (var doc in querySnapshot.docs) {
+          final data = doc.data();
+          DateTime? date;
+          if (data['timestamp'] is Timestamp) {
+            date = (data['timestamp'] as Timestamp).toDate();
+          } else if (data['timestamp'] is String) {
+            date = DateTime.tryParse(data['timestamp'] as String);
+          }
+
+          if (date == null) continue;
+
+          final workoutName = data['workout_name'] as String?;
+          final count = data['count'] as int?;
+
+          if (count != null && count > 0) {
+            final key = DateTime(date.year, date.month, date.day);
+            if (!newEvents.containsKey(key)) {
+              newEvents[key] = [];
+              newEventDetails[key] = [];
+            }
+
+            Color? eventColor = workoutColors[workoutName];
+            if (eventColor != null && !newEvents[key]!.contains(eventColor)) {
+              newEvents[key]!.add(eventColor);
+            }
+
+            newEventDetails[key]!.add({
+              'workout_name': workoutName,
+              'count': count,
+              'timestamp': date,
+            });
+          }
+        }
+
+        setState(() {
+          _events = newEvents;
+          _eventDetails = newEventDetails;
+          _isLoading = false;
+          if (_selectedDay != null) {
+            _updateSelectedDayEvents(_selectedDay!);
+          }
+        });
+      } catch (e) {
+        setState(() {
+          _errorMessage = 'Failed to load events. Please try again later.';
+          _isLoading = false;
+        });
+      }
+    } else {
+      setState(() {
+        _errorMessage = 'User not logged in.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  List<Color> _getEventsForDay(DateTime day) {
+    final eventDate = DateTime(day.year, day.month, day.day);
+    return _events[eventDate] ?? [];
+  }
+
+  void _updateSelectedDayEvents(DateTime selectedDay) {
+    final eventDate =
+        DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+    _selectedDayEvents = _eventDetails[eventDate] ?? [];
+    _selectedDayEvents.sort((a, b) =>
+        (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
+  }
+
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp is Timestamp) {
+      return DateFormat('yyyy-MM-dd HH:mm:ss').format(timestamp.toDate());
+    } else if (timestamp is DateTime) {
+      return DateFormat('yyyy-MM-dd HH:mm:ss').format(timestamp);
+    } else if (timestamp is String) {
+      return timestamp;
+    } else {
+      return 'Unknown';
+    }
+  }
+
+  void _updateDailyGoalProgress() {
+    // 각 운동의 현재 및 총 목표 설정
+    List<int> currentStepsList = [0, 0, 0]; // 선택된 날짜의 진행 상황 초기화
+    List<int> totalStepsList = _repetitions; // 각 운동의 총 목표
+
+    for (var event in _selectedDayEvents) {
+      String workoutName = event['workout_name'];
+      int count = event['count'];
+      int index = workoutNames.keys.toList().indexOf(workoutName);
+
+      if (index != -1) {
+        currentStepsList[index] += count;
+      }
+    }
+
+    setState(() {
+      _workcount = currentStepsList;
+      _repetitions = totalStepsList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor: Color(0xFF3D3F5A),
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xFF3D3F5A),
-          title: const Text(
-            "목표",
-            style: TextStyle(
-              fontSize: 25,
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.white,
-                size: 28,
-              ),
-              onPressed: () async {
-                // Navigate to GoalSettingPage and pass the current repetitions
-                final updatedRepetitions = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        GoalSettingPage(currentRepetitions: _repetitions),
-                  ),
-                );
-
-                // If user has updated the repetitions, update the state and save to Firestore
-                if (updatedRepetitions != null &&
-                    updatedRepetitions is List<int>) {
-                  setState(() {
-                    _repetitions = updatedRepetitions;
-                  });
-                  _saveRepetitionToFirestore(); // Save updated repetitions to Firestore
-                }
-              },
-            ),
-          ],
+        theme: ThemeData(
+          scaffoldBackgroundColor: Color(0xFF3D3F5A),
         ),
-        // Inside the `build` method
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                child: Column(
-                  children: [
-                    SizedBox(height: 500, child: ExerciseCalendarWidget()),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                        child: Row(
+        home: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Color(0xFF3D3F5A),
+            title: const Text(
+              "목표",
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.settings,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                onPressed: () async {
+                  // Navigate to GoalSettingPage and pass the current repetitions
+                  final updatedRepetitions = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          GoalSettingPage(currentRepetitions: _repetitions),
+                    ),
+                  );
+
+                  // If user has updated the repetitions, update the state and save to Firestore
+                  if (updatedRepetitions != null &&
+                      updatedRepetitions is List<int>) {
+                    setState(() {
+                      _repetitions = updatedRepetitions;
+                    });
+                    _saveRepetitionToFirestore(); // Save updated repetitions to Firestore
+                  }
+                },
+              ),
+            ],
+          ),
+          // Inside the `build` method
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 500,
+                        child: Column(
                           children: [
-                            Text(
-                              '일일 목표 달성률',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 20),
-                                child: Divider(
-                                  color: Colors.white60,
-                                  thickness: 1,
-                                  height: 20,
-                                ),
+                            TableCalendar<Color>(
+                              firstDay: DateTime.utc(2020, 1, 1),
+                              lastDay: DateTime.utc(2030, 12, 31),
+                              focusedDay: _focusedDay,
+                              calendarFormat: _calendarFormat,
+                              selectedDayPredicate: (day) =>
+                                  isSameDay(_selectedDay, day),
+                              onDaySelected: (selectedDay, focusedDay) {
+                                setState(() {
+                                  _selectedDay = selectedDay;
+                                  _focusedDay = focusedDay;
+                                  _updateSelectedDayEvents(selectedDay);
+
+                                  // 선택한 날짜에 따른 목표 달성률 계산
+                                  _updateDailyGoalProgress();
+                                });
+                              },
+                              onFormatChanged: (format) {
+                                setState(() {
+                                  _calendarFormat = format;
+                                });
+                              },
+                              onPageChanged: (focusedDay) {
+                                _focusedDay = focusedDay;
+                              },
+                              eventLoader: _getEventsForDay,
+                              calendarBuilders: CalendarBuilders(
+                                markerBuilder: (context, date, events) {
+                                  if (events.isNotEmpty) {
+                                    return Positioned(
+                                      bottom: 1,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: events
+                                            .map((color) => _buildMarker(color))
+                                            .toList(),
+                                      ),
+                                    );
+                                  }
+                                  return null;
+                                },
                               ),
+                              calendarStyle: CalendarStyle(
+                                weekendTextStyle:
+                                    TextStyle(color: Colors.red[200]),
+                                holidayTextStyle:
+                                    TextStyle(color: Colors.red[200]),
+                                selectedTextStyle:
+                                    const TextStyle(color: Colors.white),
+                                todayTextStyle:
+                                    const TextStyle(color: Colors.white),
+                                defaultTextStyle:
+                                    const TextStyle(color: Colors.white),
+                                outsideTextStyle:
+                                    const TextStyle(color: Colors.grey),
+                              ),
+                              daysOfWeekStyle: DaysOfWeekStyle(
+                                weekdayStyle:
+                                    const TextStyle(color: Colors.white),
+                                weekendStyle: TextStyle(color: Colors.red[200]),
+                              ),
+                              headerStyle: const HeaderStyle(
+                                formatButtonVisible: false,
+                                titleCentered: true,
+                                leftChevronIcon: Icon(Icons.chevron_left,
+                                    color: Colors.white),
+                                rightChevronIcon: Icon(Icons.chevron_right,
+                                    color: Colors.white),
+                                titleTextStyle: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // Display workout markers
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: workoutColors.entries.map((entry) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4.0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: entry.value,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(workoutNames[entry.key] ?? entry.key,
+                                          style: const TextStyle(
+                                              color: Colors.white)),
+                                      const SizedBox(width: 10),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 20),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '기록',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(left: 20),
+                                      child: Divider(
+                                        color: Colors.white60,
+                                        thickness: 1,
+                                        height: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // Record list
+                            Expanded(
+                              child: _selectedDayEvents.isEmpty
+                                  ? const Center(
+                                      child: Text(
+                                        '해당 날짜 기록이 없습니다',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      itemCount: _selectedDayEvents.length,
+                                      itemBuilder: (context, index) {
+                                        final event = _selectedDayEvents[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0, horizontal: 25.0),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        CircleAvatar(
+                                                          backgroundColor:
+                                                              workoutColors[event[
+                                                                  'workout_name']],
+                                                          radius: 8,
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 10),
+                                                        Expanded(
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Flexible(
+                                                                child: Text(
+                                                                  '${workoutNames[event['workout_name']] ?? event['workout_name']}',
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          16),
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                '${event['count']} 회',
+                                                                style: const TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        16),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _formatTimestamp(
+                                                          event['timestamp']),
+                                                      style: const TextStyle(
+                                                          color: Colors.white70,
+                                                          fontSize: 14),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: SizedBox(
-                        width: 400,
-                        height:
-                            200, // Increased height to better fit the list items
-                        child: ListView.builder(
-                          itemCount: 3,
-                          itemBuilder: (BuildContext ctx, int idx) {
-                            // 각 운동의 이름
-                            List<String> exercises = ['푸쉬업', '풀업', '스쿼트'];
-                            List<int> totalStepsList = [
-                              _repetitions[0],
-                              _repetitions[1],
-                              _repetitions[2]
-                            ];
-                            List<int> currentStepsList = [
-                              _workcount[0],
-                              _workcount[1],
-                              _workcount[2]
-                            ];
-
-                            int currentStep =
-                                currentStepsList[idx] > totalStepsList[idx]
-                                    ? totalStepsList[idx]
-                                    : currentStepsList[idx];
-
-                            double percentage = totalStepsList[idx] == 0
-                                ? 0
-                                : (currentStep / totalStepsList[idx]) * 100;
-
-                            // 목표가 0인 경우 "목표를 설정해 주세요" 메시지 표시
-                            if (totalStepsList[idx] == 0) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      exercises[idx],
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    const Text(
-                                      '목표를 설정해 주세요',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-
-                            // 목표가 0이 아닐 때만 StepProgressIndicator 표시
-                            List<LinearGradient> selectedGradients = [
-                              const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Colors.lightBlueAccent, Colors.blue],
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: Row(
+                            children: [
+                              Text(
+                                '일일 목표 달성률',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
                               ),
-                              const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Colors.yellowAccent, Colors.yellow],
-                              ),
-                              const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Colors.greenAccent, Colors.green],
-                              ),
-                            ];
-
-                            List<Color> unselectedColors = [
-                              Colors.cyan,
-                              Colors.grey,
-                              Colors.purpleAccent,
-                            ];
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      exercises[idx],
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      '$currentStep / ${totalStepsList[idx]}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 20),
+                                  child: Divider(
+                                    color: Colors.white60,
+                                    thickness: 1,
+                                    height: 20,
+                                  ),
                                 ),
-                                const SizedBox(height: 10.0),
-                                Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: StepProgressIndicator(
-                                        totalSteps: totalStepsList[idx],
-                                        currentStep: currentStep,
-                                        size: 20,
-                                        padding: 0,
-                                        selectedColor: Colors.yellow,
-                                        unselectedColor: unselectedColors[idx],
-                                        selectedGradientColor:
-                                            selectedGradients[idx],
-                                        unselectedGradientColor: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Color(0xFF595B77).withOpacity(0.5),
-                                            Color(0xFF595B77),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      '${percentage.toStringAsFixed(0)}%',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            );
-                          },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: SizedBox(
+                          width: 400,
+                          height: 200,
+                          child: ListView.builder(
+                            itemCount: 3,
+                            itemBuilder: (BuildContext ctx, int idx) {
+                              List<String> exercises = ['푸쉬업', '풀업', '스쿼트'];
+                              List<int> totalStepsList = [
+                                _repetitions[0],
+                                _repetitions[1],
+                                _repetitions[2]
+                              ];
+                              List<int> currentStepsList = [
+                                _workcount[0],
+                                _workcount[1],
+                                _workcount[2]
+                              ];
+                              List<LinearGradient> selectedGradients = [
+                                const LinearGradient(colors: [
+                                  Colors.lightBlueAccent,
+                                  Colors.blue
+                                ]),
+                                const LinearGradient(colors: [
+                                  Colors.yellowAccent,
+                                  Colors.yellow
+                                ]),
+                                const LinearGradient(
+                                    colors: [Colors.greenAccent, Colors.green]),
+                              ];
+                              List<Color> unselectedColors = [
+                                Colors.cyan,
+                                Colors.grey,
+                                Colors.purpleAccent
+                              ];
+
+                              // Check if there's a goal set for the exercise
+                              if (totalStepsList[idx] == 0) {
+                                return isSameDay(_selectedDay, DateTime.now())
+                                    ? Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              exercises[idx],
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            const Text(
+                                              '목표를 설정해 주세요',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                height:
+                                                    20), // Add space before the next exercise
+                                          ],
+                                        ),
+                                      )
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                exercises[idx],
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                '0 / 0', // Display 0/0 for other dates with no goal
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10.0),
+                                          Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: StepProgressIndicator(
+                                                  totalSteps:
+                                                      1, // Set to 1 for an empty bar
+                                                  currentStep: 0,
+                                                  size: 20,
+                                                  selectedColor: unselectedColors[
+                                                      idx], // Use unselected color
+                                                  unselectedColor: aitGrey,
+                                                  selectedGradientColor:
+                                                      selectedGradients[idx],
+                                                  unselectedGradientColor:
+                                                      LinearGradient(
+                                                    colors: [
+                                                      Color(0xFF595B77)
+                                                          .withOpacity(0.5),
+                                                      Color(0xFF595B77),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                '0%', // Display 0% progress
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                              height:
+                                                  20), // Add space before the next exercise
+                                        ],
+                                      );
+                              }
+
+                              // For exercises with a set goal
+                              int currentStep =
+                                  currentStepsList[idx] > totalStepsList[idx]
+                                      ? totalStepsList[idx]
+                                      : currentStepsList[idx];
+
+                              // Calculate percentage: if currentStepsList[idx] is greater than totalStepsList[idx], set it to 100
+                              double percentage = (currentStepsList[idx] >
+                                      totalStepsList[idx])
+                                  ? 100
+                                  : (currentStep / totalStepsList[idx]) * 100;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        exercises[idx],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${currentStepsList[idx]} / ${totalStepsList[idx]}', // Show currentStepsList here
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                      height: 10.0), // Consistent spacing
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: StepProgressIndicator(
+                                          totalSteps: totalStepsList[idx],
+                                          currentStep:
+                                              currentStep, // This remains unchanged for the graph
+                                          size: 20,
+                                          padding: 0,
+                                          selectedColor: Colors.yellow,
+                                          unselectedColor:
+                                              unselectedColors[idx],
+                                          selectedGradientColor:
+                                              selectedGradients[idx],
+                                          unselectedGradientColor:
+                                              LinearGradient(
+                                            colors: [
+                                              Color(0xFF595B77)
+                                                  .withOpacity(0.5),
+                                              Color(0xFF595B77),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${percentage.toStringAsFixed(0)}%', // This percentage can still show 100 if exceeded
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                      height:
+                                          10), // Add space before the next exercise
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-      ),
-    );
+        ));
   }
 }
