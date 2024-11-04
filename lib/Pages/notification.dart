@@ -60,6 +60,10 @@ class _NotificationPageState extends State<NotificationPage> {
               fontWeight: FontWeight.w900,
             ),
           ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
           backgroundColor: aitNavy,
           elevation: 0,
         ),
