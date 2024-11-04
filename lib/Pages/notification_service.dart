@@ -116,6 +116,7 @@ class NotificationService {
       'Test Notification Channel',
       channelDescription: 'This channel is used for test notifications',
       importance: Importance.high,
+      priority: Priority.high, // Set high priority
     );
 
     final NotificationDetails notificationDetails =
@@ -125,7 +126,11 @@ class NotificationService {
     final tz.TZDateTime scheduledTime =
         tz.TZDateTime.from(now.add(Duration(seconds: 5)), tz.local);
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
+    print(
+        "Scheduling immediate notification at: $scheduledTime"); // Debugging log
+
+    await flutterLocalNotificationsPlugin
+        .zonedSchedule(
       notificationId,
       'Test Notification',
       'This is a test notification!',
@@ -134,6 +139,11 @@ class NotificationService {
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-    );
+    )
+        .then((_) {
+      print("Immediate notification scheduled successfully");
+    }).catchError((error) {
+      print("Failed to schedule immediate notification: $error");
+    });
   }
 }
