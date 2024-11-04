@@ -43,6 +43,9 @@ Future<void> initializeApp() async {
 }
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones(); // Initialize timezone early
+  await NotificationService().init(); // Initialize the notification service
   // 파이어베이스 초기화 함수
   await initializeApp();
   _initNotiSetting();
