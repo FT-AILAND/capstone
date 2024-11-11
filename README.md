@@ -52,6 +52,11 @@
     <td><img src="https://github.com/user-attachments/assets/b4943f53-612c-4b98-b3ca-f3587dcb04fd" width="300"></td>
   </tr>
   <tr>
+    <td>분석 영상 (소리 x)</td>
+    <td>https://youtube.com/shorts/FV3btugcNUM?feature=share</td>
+    <td>https://youtube.com/shorts/YKYt1oXivxY?feature=share</td>
+    <td>https://youtube.com/shorts/DSgauhx5SaA?feature=share</td>
+  <tr>
     <td>영상 출처</td>
     <td>https://youtu.be/XmxpYKKlqok?si=B8i026T9lP2HJGWD</td>
     <td>https://youtube.com/shorts/BLI3ZSWs2ck?si=g5UazZvNv80RrFMI</td>
